@@ -1,5 +1,6 @@
 package deserializer;
 
+import collection_control.BadValueException;
 import labwork_class.Discipline;
 import com.google.gson.*;
 
@@ -11,8 +12,10 @@ public class DisciplineDeserializer implements JsonDeserializer<Discipline> {
     public Discipline deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         Discipline lesson = new Discipline("read", new Scanner(System.in));
         JsonObject jsonObject = json.getAsJsonObject();
-        lesson.setName(jsonObject.get("name").getAsString(), "read");
-        lesson.setPracticeHours(jsonObject.get("practiceHours").getAsString(), "read");
+        try {
+            lesson.setName(jsonObject.get("name").getAsString(), "read");
+            lesson.setPracticeHours(jsonObject.get("practiceHours").getAsString(), "read");
+        } catch (BadValueException e) {}
         return lesson;
     }
 

@@ -31,14 +31,14 @@ public class Discipline{
     		}}
     	}
     
-    public void setName (String value, String type){
+    public void setName (String value, String type) throws  BadValueException{
     	try{ name = check.checkString(value); }
-    	catch (BadValueException e) {e.message(type, "Discipline name");}
+    	catch (BadValueException e) {throw new BadValueException("discipline name", e.getMessage());}
     }
     
-    public void setPracticeHours (String value, String type) {
+    public void setPracticeHours (String value, String type) throws  BadValueException{
 		try{ practiceHours = check.checkInt(value, Integer.MIN_VALUE, Integer.MAX_VALUE);}
-    	catch (BadValueException e) {e.message(type, "practiceHours");}
+    	catch (BadValueException e) {throw new BadValueException("practiceHours", e.getMessage());}
     }
     
     public String getName() {

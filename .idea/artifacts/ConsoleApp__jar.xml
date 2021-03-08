@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ConsoleApp@:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ConsoleApp__jar</output-path>
+    <root id="archive" name="ConsoleApp.jar">
+      <element id="module-output" name="ConsoleApp@" />
+      <element id="library" level="application" name="gson-2.2.4-sources.jar" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/lib/gson-2.8.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

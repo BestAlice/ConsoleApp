@@ -11,9 +11,11 @@ import java.util.Scanner;
 public class ComandReader {
     private LinkedList<LabWork> LabList;
     private static ArrayList<String> executed_files = new ArrayList<>();
+    private String json;
 
-    public ComandReader(LinkedList labList,boolean execute, String fileName){
+    public ComandReader(LinkedList labList,boolean execute, String fileName, String json){
         LabList = labList;
+        this.json = json;
         if (!execute) {
             executed_files.clear();
             reader(System.in);
@@ -62,10 +64,10 @@ public class ComandReader {
                 case "update": console.update(); break;
                 case "remove_by_id": console.remove_by_id(); break;
                 case "clear": console.clear(); break;
-                case "save": console.save(); break;
+                case "save": console.save(json); break;
                 case "execute_script":
                     try {
-                        new ComandReader(LabList, true, arrLine[1]);
+                        new ComandReader(LabList, true, arrLine[1], json);
                     } catch (ArrayIndexOutOfBoundsException e) {
                         System.out.println("Не введено имя читаемого файла");
                     } break;

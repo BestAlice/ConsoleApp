@@ -2,6 +2,7 @@ package collection_control;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import deserializer.*;
 import labwork_class.Coordinates;
 import labwork_class.Discipline;
@@ -30,9 +31,6 @@ public class ParseJson {
             gson = new GsonBuilder()
                     .registerTypeAdapter(LinkedList.class, new LinkedListDeserializer())
                     .registerTypeAdapter(LabWork.class, new LabWorkDeserializer())
-                    .registerTypeAdapter(Coordinates.class, new CoordinatesDeserializer())
-                    .registerTypeAdapter(Discipline.class, new DisciplineDeserializer())
-                    .registerTypeAdapter(LocalDateTime.class, new CreationDateDeserializer())
                     .create();
             LabList = gson.fromJson(finalText, LinkedList.class);
             LabList.sort(LabWork::compareTo);
@@ -40,8 +38,8 @@ public class ParseJson {
             System.out.println("Файл не найден или нет прав на чтение");
         } catch (NullPointerException e) {
             System.out.println("Ошибка поиска переменной окружения");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (JsonSyntaxException e) {
+            System.out.println("Ошибка в структуре json");
         }
         return LabList;
     }

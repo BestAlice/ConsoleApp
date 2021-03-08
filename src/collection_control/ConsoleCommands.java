@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.io.PrintWriter;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class ConsoleCommands {
@@ -25,12 +26,13 @@ public class ConsoleCommands {
     }
 
     public void help() {
-        File readme = new File("ConsoleApp/README.txt");
         try {
+            File readme = new File("./README.txt"); //readme = new File("ConsoleApp.jar/README.txt"); getClass().getResource("/README.txt").getPath()
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(readme), "UTF-8"));
             for (String line; (line = br.readLine()) != null; ) {
                 System.out.println(line);
             }
+            br.close();
         } catch (FileNotFoundException e) {
             System.out.println("Файл README не найден");
         } catch (IOException e) {
@@ -68,7 +70,7 @@ public class ConsoleCommands {
             LabWork lab = this.findById(id);
             lab.show();
         } catch (BadValueException e) {
-            e.message("input", "id");
+            e.message("input");
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Не введено id");
         }
@@ -87,7 +89,7 @@ public class ConsoleCommands {
             updateLab.update(scan);
             sort();
         } catch (BadValueException e) {
-            e.message("input", "id");
+            e.message("input");
         } catch (ArrayIndexOutOfBoundsException e) {
         System.out.println("Не введено id");
         }
@@ -105,7 +107,7 @@ public class ConsoleCommands {
             sort();
             System.out.println("Удаление завершено");
         } catch (BadValueException e) {
-            e.message("input", "id");
+            e.message("input");
         }catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Не введено id");
         }
@@ -116,9 +118,9 @@ public class ConsoleCommands {
         System.out.println("Отчистка завершена");
     }
 
-    public void save(){
+    public void save(String nameJson){
         String json = ParseJson.parseToJson(LabList);
-        File file = new File(System.getenv("Json_input"));
+        File file = new File(System.getenv(nameJson));
         try {
             PrintWriter writer = new PrintWriter(file);
 
@@ -133,12 +135,21 @@ public class ConsoleCommands {
     }
 
     public void remove_first(){
-        LabList.removeFirst();
-        System.out.println("Удаление завершено");
+        try{
+            LabList.removeFirst();
+            System.out.println("Удаление завершено");
+        } catch (NoSuchElementException e) {
+            System.out.println("Коллекция пуста");
+        }
     }
 
     public void add_if_max(){
-        LabWork maxElement = LabList.get(0);
+        LabWork maxElement = new LabWork();
+        try{
+            maxElement.setMinimalPoint("1", "read");
+        } catch (BadValueException e) {
+            e.message();
+        }
         for (LabWork lab: LabList) {
             if (lab.compareTo(maxElement) > 0)
                 {maxElement = lab;}
@@ -153,8 +164,13 @@ public class ConsoleCommands {
         }
     }
 
-    public void add_if_min(){
-        LabWork minElement = LabList.get(0);
+    public void add_if_min() {
+        LabWork minElement = new LabWork();
+        try{
+            minElement.setMinimalPoint(String.valueOf(Long.MAX_VALUE), "read");
+        } catch (BadValueException e) {
+            e.message();
+        }
         for (LabWork lab: LabList) {
             if (lab.compareTo(minElement) < 0)
             {minElement = lab;}
@@ -178,27 +194,34 @@ public class ConsoleCommands {
                     System.out.printf("Элемент %d удалён\n", lab.getId());
                     delited = true;
                     remove(lab);
+
                     break;
                 }
             }
-            if (delited) {
+            if (!delited) {
                 System.out.println("Не нашлось подходящих элементов");
             }
         } catch (BadValueException e) {
             e.message("input", "personalQualitiesMaximum");
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Не введено PersonalQualitiesMaximum для сравнения");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void min_by_creation_date(){
-        LabWork minTime = LabList.getFirst();
-        for (LabWork lab : LabList) {
-            if (comparatorByDate.compare(minTime.getCreationDate(), lab.getCreationDate()) > 0) {
-                minTime = lab;
+        try {
+            LabWork minTime = LabList.getFirst();
+            for (LabWork lab : LabList) {
+                if (comparatorByDate.compare(minTime.getCreationDate(), lab.getCreationDate()) > 0) {
+                    minTime = lab;
+                }
             }
+            minTime.show();
+        } catch (NoSuchElementException e) {
+            System.out.println("Коллекция пуста");
         }
-        minTime.show();
     }
 
     public void count_by_difficulty(){
@@ -213,6 +236,8 @@ public class ConsoleCommands {
             e.message("input", "Difficulty");
         }catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Не введено Difficulty для сравнения");
+        } catch (NoSuchElementException e){
+            System.out.println("Коллекция пуста");
         }
     }
 
@@ -230,8 +255,15 @@ public class ConsoleCommands {
     }
 
     public void remove (LabWork lab){
-        LabList.remove(lab);
-        new LabWork().removeIdFromUssing(lab.getId());
+        try {
+            LabList.remove(lab);
+            new LabWork().removeIdFromUssing(lab.getId());
+            System.out.println("Объект успешно удалён");
+        } catch (BadValueException e) {
+            e.message("input");
+        } catch (NoSuchElementException e) {
+            System.out.println("Коллекция пуста");
+        }
     }
 
     public Comparator<LocalDateTime> comparatorByDate = new Comparator<LocalDateTime>() {

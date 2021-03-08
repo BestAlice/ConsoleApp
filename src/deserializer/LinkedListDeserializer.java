@@ -1,5 +1,6 @@
 package deserializer;
 
+import collection_control.BadValueException;
 import labwork_class.LabWork;
 import com.google.gson.*;
 
@@ -13,9 +14,15 @@ public class LinkedListDeserializer implements JsonDeserializer<LinkedList> {
 		JsonObject jsonObject = json.getAsJsonObject();
 		JsonArray jsonList = jsonObject.get("list").getAsJsonArray();
 		for (int i = 0; i < jsonList.size(); i++) {
-			JsonObject newObject = jsonList.get(i).getAsJsonObject();
-			LabWork nextLaba = context.deserialize(newObject, LabWork.class);
-			result.add(nextLaba);
+			try {
+				JsonObject newObject = jsonList.get(i).getAsJsonObject();
+				LabWork nextLaba = context.deserialize(newObject, LabWork.class);
+				result.add(nextLaba);
+			} catch (JsonParseException e) {
+				System.out.println("Ошибка поймана");
+			} catch (NullPointerException e) {
+				System.out.println(e.getMessage());
+			}
 		}
 		return result;
 		}

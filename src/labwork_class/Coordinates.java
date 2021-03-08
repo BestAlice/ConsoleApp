@@ -6,6 +6,7 @@ import collection_control.CheckInput;
 import java.util.Scanner;
 
 public class Coordinates {
+	private Long id;
 	private Long x; //Максимальное значение поля: 691, Поле не может быть null
     private Long y; //Поле не может быть null
     private Scanner scan;
@@ -14,7 +15,6 @@ public class Coordinates {
     
     //сделать конструктор
     public Coordinates(String type, Scanner scan){
-
     	if (type.equals("input")) {
 			this.scan = scan;
     		System.out.println("Введите координаты");
@@ -35,19 +35,31 @@ public class Coordinates {
     		}
     	}
     }
-	public void setX (String value, String type) {
+	public void setX (String value, String type) throws BadValueException{
 		try{
 			x = check.checkLong(value, Long.MIN_VALUE, 691L, false);
-		} catch (BadValueException e) {e.message(type,"x");
-		}}
+		} catch (BadValueException e) {
+			throw new BadValueException(type, "x");
+		}
+    }
 
-    public void setY (String value, String type) {
+    public void setY (String value, String type) throws BadValueException{
 		try{
     	y = check.checkLong(value, Long.MIN_VALUE, Long.MAX_VALUE, false);
-		} catch (BadValueException e) {e.message(type,"y");
-    }}
+		} catch (BadValueException e) {
+			throw new BadValueException(type, "y");
+		}
+    }
 
-    public Long getX() {
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Long getId(){
+    	return id;
+	}
+
+	public Long getX() {
     	return x;
     }
 

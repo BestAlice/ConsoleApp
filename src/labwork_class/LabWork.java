@@ -22,7 +22,7 @@ public class LabWork implements Comparable<LabWork> {
 	CheckInput check = new CheckInput();
 	
 	private Long id = index.pollFirst();; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
-    private String name; //Поле не может быть null, Строка не может быть пустой
+    private String name = ""; //Поле не может быть null, Строка не может быть пустой
     private Coordinates coordinates; //Поле не может быть null
     private LocalDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
     private int minimalPoint; //Значение поля должно быть больше 0
@@ -97,25 +97,25 @@ public class LabWork implements Comparable<LabWork> {
     	usingId.add(id);
     }
 
-    public void removeIdFromUssing(Long id) {
+    public void removeIdFromUssing(Long id) throws BadValueException{
     	try {
 			check.checkId(id.toString(), new LabWork().getUsingId());
 			usingId.remove(id);
 		} catch (BadValueException e) {
-    		e.message("input", "id");
+    		throw new BadValueException("id", e.getMessage());
     	}
 	}
     
-    public void setName (String value, String type) {
+    public void setName (String value, String type) throws BadValueException{
     	try {name = check.checkString(value);} 
     	catch (BadValueException e) 
-    	{e.message(type, id,"name");}
+    	{throw new BadValueException("name", e.getMessage());}
     } 
     
-    public void setCoordinates (Coordinates coord, String type) {
+    public void setCoordinates (Coordinates coord, String type){
     	try {coordinates = coord;}
-    	catch (Exception e) 
-    	{e.getMessage();}
+		 catch (Exception e)
+    	{System.out.println(e.getMessage());}
     }
     
 
@@ -123,25 +123,25 @@ public class LabWork implements Comparable<LabWork> {
     	creationDate = date;
     }
     
-    public void setMinimalPoint (String value, String type) {
+    public void setMinimalPoint (String value, String type)  throws BadValueException {
     	try {minimalPoint = check.checkInt(value, 0, Integer.MAX_VALUE);} 
     	catch (BadValueException e) 
-    	{e.message(type, id,"minimalPoint");}
+    	{throw new BadValueException(type, id, name, "minimalPoint", e.getMessage());}
     }
     
-    public void setPersonalQualitiesMaximum (String value, String type) {
+    public void setPersonalQualitiesMaximum (String value, String type) throws BadValueException {
     	try {personalQualitiesMaximum =  check.checkLong(value, 0L, Long.MAX_VALUE, true);} 
     	catch (BadValueException e) 
-    	{e.message(type, id,"personalQualitiesMaximum");}
+    	{throw new BadValueException("personalQualitiesMaximum", e.getMessage());}
     }
     
-    public void setDifficulty (String value, String type) {
+    public void setDifficulty (String value, String type) throws BadValueException {
     	try {difficulty = check.checkEnum(value, Difficulty.class, true);} 
     	catch (BadValueException e) 
-    	{e.message(type, id,"difficulty");}
+    	{throw new BadValueException("difficulty", e.getMessage());}
     }
     
-    public void setDiscipline (Discipline dis, String type) {
+    public void setDiscipline (Discipline dis, String type) throws BadValueException {
     	try {discipline = dis;}
     	catch (Exception e) 
     	{e.getMessage();}
