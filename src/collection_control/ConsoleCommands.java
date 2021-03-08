@@ -44,7 +44,7 @@ public class ConsoleCommands {
     public void info(){
         System.out.println("Тип коллекции:\tLinkedList");
         System.out.println("Содержит объеты класса:\tLabWork");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ss:mm:hh dd MM YYYY");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm:ss dd MM YYYY");
         System.out.println("Время иницилизации: " + timeInit.format(formatter));
         System.out.printf("Колличество элементов: %d\n", LabList.size());
     }
@@ -64,8 +64,6 @@ public class ConsoleCommands {
 
     public void showEl() {
         try {
-            System.out.println(commandLine[1]);
-            System.out.println(new LabWork().getUsingId());
             Long id = check.checkId(commandLine[1], new LabWork().getUsingId());
             LabWork lab = this.findById(id);
             lab.show();
@@ -191,10 +189,9 @@ public class ConsoleCommands {
             boolean delited = false;
             for (LabWork lab : LabList) {
                 if (lab.getPersonalQualitiesMaximum().equals(var)) {
-                    System.out.printf("Элемент %d удалён\n", lab.getId());
+                    System.out.printf("Элемент %d подходит\n", lab.getId());
                     delited = true;
                     remove(lab);
-
                     break;
                 }
             }
@@ -270,9 +267,9 @@ public class ConsoleCommands {
         @Override
         public int compare(LocalDateTime o1, LocalDateTime o2) {
             int time1 = o1.getSecond() + 10^2 * o1.getMinute() +
-                    10^4 * o1.getHour() + 10^6 *o1.getDayOfYear() + 10^9 * o1.getYear();
+                    10^4 * o1.getHour() + 10^6 *o1.getDayOfYear() + 10^10 * o1.getYear();
             int time2 = o2.getSecond() + 10^2 * o2.getMinute() +
-                    10^4 * o2.getHour() + 10^6 *o2.getDayOfYear() + 10^9 * o2.getYear();
+                    10^4 * o2.getHour() + 10^6 *o2.getDayOfYear() + 10^10 * o2.getYear();
             return time1 - time2;
         }
     };

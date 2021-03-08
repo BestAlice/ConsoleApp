@@ -21,6 +21,7 @@ public class Coordinates {
     		int i = 0;
     		while (i < 2) {
 				try{
+					System.out.println();
     			switch (i) {
 					case 0:
 						System.out.print("X: ");
@@ -31,7 +32,7 @@ public class Coordinates {
 						y = check.checkLong(scan.nextLine(), Long.MIN_VALUE, Long.MAX_VALUE, false);
 						i++;break;
 				}} catch (BadValueException e) {e.message("input");}
-				System.out.println();
+
     		}
     	}
     }

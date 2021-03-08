@@ -54,7 +54,7 @@ public class LabWork implements Comparable<LabWork> {
 		this.scan = scan;
 		int fieldIndex = 0;
 		while (fieldIndex < 7) {
-			try {
+			try {System.out.println();
 				switch (fieldIndex) {
 					case 0:
 						System.out.print("Введите название Лабораторной: ");
@@ -88,7 +88,6 @@ public class LabWork implements Comparable<LabWork> {
 			} catch (BadValueException e) {
 				e.message("input");
 			}
-			System.out.println();
 		}
 		System.out.println("Заполнение закончено");
 	}

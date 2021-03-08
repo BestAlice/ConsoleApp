@@ -16,6 +16,7 @@ public class Discipline{
     	if (type.equals("input")) {
     		int i = 0;
     		while (i < 2) {
+
 				try {
     			switch (i) {
     			case 0:

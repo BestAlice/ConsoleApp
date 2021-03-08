@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class ComandReader {
     private LinkedList<LabWork> LabList;
-    private static ArrayList<String> executed_files = new ArrayList<>();
+    private static LinkedList<String> executed_files = new LinkedList<>();
     private String json;
 
     public ComandReader(LinkedList labList,boolean execute, String fileName, String json){
@@ -25,15 +25,18 @@ public class ComandReader {
                     System.out.println("Рекурсия при попытке исполнить execute_script");
                     executed_files.clear();
                 } else {
-
                     File file = new File(fileName);
+                    if (!file.canRead()) {throw new Exception("Файл не может быть прочитан");}
                     FileInputStream stream = new FileInputStream(file);
-                    executed_files.add(fileName);
+                    executed_files.addLast(fileName);
                     reader(stream);
+                    executed_files.pollLast();
                 }
             } catch (FileNotFoundException e) {
                 System.out.printf("Файла %s не существует\n", fileName);
-            } 
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
             }
         }
 
@@ -67,7 +70,7 @@ public class ComandReader {
                 case "save": console.save(json); break;
                 case "execute_script":
                     try {
-                        new ComandReader(LabList, true, arrLine[1], json);
+                        new ComandReader(LabList, true, arrLine[1]+".txt", json);
                     } catch (ArrayIndexOutOfBoundsException e) {
                         System.out.println("Не введено имя читаемого файла");
                     } break;
@@ -80,5 +83,6 @@ public class ComandReader {
                 case "count_by_difficulty": console.count_by_difficulty(); break;
                 default: System.out.printf("Команды %s не существует\n", mainCommand);
             }
+        }
     }
-}}
+}
