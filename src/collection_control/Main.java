@@ -18,7 +18,9 @@ public class Main {
 			try {
 				System.out.print("Введите имя переменной окруения: ");
 				fileName = scan.nextLine();
+				if (fileName.equals("exit")) {System.exit(-1);}
 				File InputFile = new File(System.getenv(fileName));
+				if (!InputFile.exists()) {throw new FileNotFoundException();}
 				if (!InputFile.canRead()) {throw new Exception("Файл не может быть прочитан");}
 				if (!InputFile.canWrite()) {throw new Exception("В файл нельзя записывать");}
 				LabList = ParseJson.parseFromJson(fileName);

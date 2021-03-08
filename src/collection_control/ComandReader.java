@@ -49,7 +49,7 @@ public class ComandReader {
             try{
                 command = scan.nextLine().trim();
             } catch (NoSuchElementException e) {
-                System.out.println("Чтиение скрипта завершено");
+                System.out.println("Чтение скрипта завершено");
                 go = false;
                 break;
             }
