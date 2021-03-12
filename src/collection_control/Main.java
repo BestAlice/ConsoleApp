@@ -2,6 +2,7 @@ package collection_control;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -32,6 +33,8 @@ public class Main {
 				System.out.println("Файл не найден");
 			} catch (JsonSyntaxException e) {
 				System.out.println("Ошибка в структуре json");
+			} catch (IOException e){
+				System.out.println("Ошибка чтения потока");
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}

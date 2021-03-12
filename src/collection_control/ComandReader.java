@@ -84,5 +84,6 @@ public class ComandReader {
                 default: System.out.printf("Команды %s не существует\n", mainCommand);
             }
         }
+        scan.close();
     }
 }
