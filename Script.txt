@@ -1,0 +1,9 @@
+add
+God
+12
+32
+55
+23
+
+no
+execute_script Script

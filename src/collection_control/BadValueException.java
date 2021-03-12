@@ -64,6 +64,7 @@ public class BadValueException extends Exception {
 			System.out.println(message);
 		}
 	}
+	/*
 	public void addType(String type){
 		this.type = type;
 	}
@@ -79,7 +80,7 @@ public class BadValueException extends Exception {
 	public void addMessage (String message){
 		this.message = message;
 	}
-
+*/
 	public String getVar() {
 		return var;
 	}
