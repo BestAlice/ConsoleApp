@@ -3,23 +3,24 @@ package labwork_class;
 import collection_control.BadValueException;
 import collection_control.CheckInput;
 
+import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.time.LocalDateTime;
 
-public class LabWork implements Comparable<LabWork> {
+public class LabWork implements Comparable<LabWork>, Serializable {
 	
-	private static LinkedList<Long> index = new LinkedList<>();
-	private static ArrayList<Long> usingId = new ArrayList<>();
-	static {for ( Long i = 0L; i < 1000L; i++ ) {
+	private transient  static LinkedList<Long> index = new LinkedList<>();
+	private transient  static ArrayList<Long> usingId = new ArrayList<>();
+	static  {for ( Long i = 0L; i < 1000L; i++ ) {
 		index.add(i + 1);
 	}
 	Collections.shuffle(index);}
 	
 	
 	
-	private Scanner scan = new Scanner(System.in);
-	CheckInput check = new CheckInput();
+	private transient  Scanner scan = new Scanner(System.in);
+	transient CheckInput check = new CheckInput();
 	
 	private Long id = index.pollFirst();; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name = ""; //Поле не может быть null, Строка не может быть пустой
@@ -98,7 +99,7 @@ public class LabWork implements Comparable<LabWork> {
 
     public void removeIdFromUssing(Long id) throws BadValueException{
     	try {
-			check.checkId(id.toString(), new LabWork().getUsingId());
+			check.checkId(id.toString());
 			usingId.remove(id);
 		} catch (BadValueException e) {
     		throw new BadValueException("id", e.getMessage());

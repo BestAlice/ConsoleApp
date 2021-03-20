@@ -12,6 +12,7 @@ public class ComandReader {
     private LinkedList<LabWork> LabList;
     private static LinkedList<String> executed_files = new LinkedList<>();
     private String json;
+    private RequestObject request;
 
     public ComandReader(LinkedList labList,boolean execute, String fileName, String json){
         LabList = labList;
@@ -37,8 +38,8 @@ public class ComandReader {
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-            }
         }
+    }
 
 
     private void reader(InputStream input){

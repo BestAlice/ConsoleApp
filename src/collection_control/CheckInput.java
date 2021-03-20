@@ -1,11 +1,20 @@
 package collection_control;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+
+import client.RequestControll;
+import client.RequestControll.*;
 
 public class CheckInput  {
 	
-	public Long checkId (String value, ArrayList<Long> usingId ) throws BadValueException {
+	public Long checkId (String value) throws BadValueException {
 		Long id = checkLong(value, 0L, Long.MAX_VALUE, false);
+		RequestObject req = new RequestObject();
+		req.setCommand("get_usindId");
+		RequestControll.sendRequest(req);
+		RequestObject ans = RequestControll.getAnswer();
+		ArrayList<Long> usingId = ans.getUsingId();
 		if (usingId.contains(id)) {
 			return id;
 		}
