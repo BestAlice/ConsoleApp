@@ -3,7 +3,6 @@ package collection_control;
 import labwork_class.LabWork;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -12,7 +11,7 @@ public class ComandReader {
     private LinkedList<LabWork> LabList;
     private static LinkedList<String> executed_files = new LinkedList<>();
     private String json;
-    private RequestObject request;
+    private MessageObject request;
 
     public ComandReader(LinkedList labList,boolean execute, String fileName, String json){
         LabList = labList;

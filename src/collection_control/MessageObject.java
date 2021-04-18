@@ -6,7 +6,7 @@ import labwork_class.LabWork;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class RequestObject implements Serializable {
+public class MessageObject implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String command;
@@ -68,7 +68,7 @@ public class RequestObject implements Serializable {
         return messages;
     }
 
-    public void setMessages(String message) {
+    public void addMessage(String message) {
         this.messages.add(message);
     }
 

@@ -3,9 +3,11 @@ package labwork_class;
 import collection_control.BadValueException;
 import collection_control.CheckInput;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Discipline{
+public class Discipline implements  Serializable {
 	private String name; //Поле не может быть null, Строка не может быть пустой
     private int practiceHours;
     private Scanner scan;
@@ -57,4 +59,12 @@ public class Discipline{
     	System.out.println("\tpracticeHours : " + practiceHours);
 
     }
+
+	public ArrayList<String> getFullInfo(){
+		ArrayList<String> info = new ArrayList<>();
+		info.add("discipline :");
+		info.add("\tdiscipline name : " + name);
+		info.add("\tpracticeHours : " + practiceHours);
+		return info;
+	}
 }

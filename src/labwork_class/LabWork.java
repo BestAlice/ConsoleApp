@@ -22,7 +22,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 	private transient  Scanner scan = new Scanner(System.in);
 	transient CheckInput check = new CheckInput();
 	
-	private Long id = index.pollFirst();; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
+	private Long id = index.pollFirst(); //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name = ""; //Поле не может быть null, Строка не может быть пустой
     private Coordinates coordinates; //Поле не может быть null
     private LocalDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
@@ -36,6 +36,8 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 		return this;
 	}
 
+
+
 	public LabWork	create(Scanner scan){
     	//автоматически
     	creationDate =LocalDateTime.now();
@@ -46,9 +48,14 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     	return this;
     }
 
-    public void update(Scanner scan) {
+    public void update(LabWork newLab) {
 		System.out.printf("Обновление данных для %s\n", this.name);
-		inputFields(scan);
+		name = newLab.getName();
+		coordinates = newLab.getCoordinates();
+		minimalPoint = newLab.getMinimalPoint();
+		personalQualitiesMaximum = newLab.getPersonalQualitiesMaximum();
+		difficulty = newLab.getDifficulty();
+		discipline = newLab().getDiscipline();
 	}
 
     public void inputFields(Scanner scan){
@@ -99,7 +106,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 
     public void removeIdFromUssing(Long id) throws BadValueException{
     	try {
-			check.checkId(id.toString());
+			check.checkId(id.toString(), usingId);
 			usingId.remove(id);
 		} catch (BadValueException e) {
     		throw new BadValueException("id", e.getMessage());
@@ -176,7 +183,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 		return coordinates;
 	}
 
-	public ArrayList<Long> getUsingId() {
+	public static ArrayList<Long> getUsingId() {
 		return usingId;
 	}
 
@@ -198,6 +205,28 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 		} else {
 			discipline.show();
 		}
+	}
+
+	public ArrayList<String> getFullInfo() {
+		ArrayList<String> info = new ArrayList<>();
+		info.add("id : " + id);
+		info.add("name : " + name);
+		for (String line: coordinates.getFullInfo()) {
+			info.add(line);
+		}
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YYYY hh:mm:ss");
+		info.add("creationDate : " + creationDate.format(formatter));
+		info.add("minimalPoint : " + minimalPoint);
+		info.add("personalQualitiesMaximum : " + personalQualitiesMaximum);
+		info.add("difficulty : " + difficulty);
+		if (discipline == null) {
+			info.add("discipline : null");
+		} else {
+			for (String line: discipline.getFullInfo()) {
+				info.add(line);
+			}
+		}
+		return info;
 	}
 
 	public Discipline getDiscipline() {

@@ -3,9 +3,11 @@ package labwork_class;
 import collection_control.BadValueException;
 import collection_control.CheckInput;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Coordinates {
+public class Coordinates implements Serializable {
 	private Long id;
 	private Long x; //Максимальное значение поля: 691, Поле не может быть null
     private Long y; //Поле не может быть null
@@ -71,5 +73,12 @@ public class Coordinates {
     public void show(){
     	System.out.println("x : " + x);
     	System.out.println("y : " + y);
+	}
+
+	public ArrayList<String> getFullInfo(){
+		ArrayList<String> info = new ArrayList<>();
+		info.add("x : " + x);
+		info.add("y : " + y);
+		return info;
 	}
 }

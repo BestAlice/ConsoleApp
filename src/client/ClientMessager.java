@@ -1,23 +1,83 @@
 package client;
 
-import collection_control.ComandReader;
-import collection_control.RequestObject;
+import collection_control.MessageObject;
 
 
 import java.io.*;
 import java.net.Socket;
-import java.util.LinkedList;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import collection_control.Serializing;
+import org.omg.CORBA.Object;
+
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class RequestControll {
+public class ClientMessager {
     private static boolean executed = false;
-    private RequestObject request;
+    private MessageObject request;
     private Socket socket;
-    private static ObjectInputStream in;
-    private static ObjectOutputStream out;
+    private SocketChannel channel;
+    private InputStream in;
+    private OutputStream out;
+    private DataInputStream inData;
+    private DataOutputStream outData;
+    private ByteBuffer answerData;
+    private int BUFFER_SIZE = 10000;
 
-    public RequestControll(Socket socket, ObjectInputStream in, ObjectOutputStream out){
+    public ClientMessager(Socket socket) {
+        this.socket = socket;
+        try {
+            in = socket.getInputStream();
+            out = socket.getOutputStream();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        inData = new DataInputStream(in);
+        outData = new DataOutputStream(out);
+        answerData = ByteBuffer.allocate(BUFFER_SIZE);
+    }
+
+    public MessageObject getMessage() throws IOException{
+        MessageObject answerObject = null;
+        try{
+            int answerLength = inData.readInt();
+            byte[] answerData = new byte[answerLength];
+            inData.readFully(answerData);
+            answerObject = (MessageObject) Serializing.deserializeObject(answerData);
+        } catch (IOException e) {
+            socket.getChannel().close();
+            socket.close();
+
+
+
+            System.out.println("Ошибка передачи данных");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Передан ошибочный класс данных");
+        }
+        return answerObject;
+    }
+
+    public void sendMessage(MessageObject message){
+        try{
+            byte[] objData = Serializing.serializeObject(message);
+            outData.writeInt(objData.length);
+            out.write(objData);
+            out.flush();
+
+        } catch (IOException e) {
+            System.out.println("Ошибка передачи данных");
+        }
+    }
+
+
+
+
+
+
+    /*
+    public ClientMessager(Socket socket, ObjectInputStream in, ObjectOutputStream out){
         this.socket = socket;
         this.in = in;
         this.out = out;
@@ -64,7 +124,7 @@ public class RequestControll {
             command=new String(command.getBytes(),"Cp866");
             String[] arrLine = command.split(" ");
             String mainCommand = arrLine[0].trim();
-            BuildRequest builder = new BuildRequest(arrLine, scan);
+            ClientMessageGeneration builder = new ClientMessageGeneration(arrLine, scan);
             switch (mainCommand){
                 case "help": builder.help(); break;
                 case "info": builder.info(); break;
@@ -90,10 +150,10 @@ public class RequestControll {
                 case "count_by_difficulty": builder.count_by_difficulty(); break;
                 default: System.out.printf("Команды %s не существует\n", mainCommand);
             }
-            RequestObject request = builder.getRequest();
+            MessageObject request = builder.getRequest();
             if (request.getReady()){
                 sendRequest(request);
-                RequestObject answer = getAnswer();
+                MessageObject answer = getAnswer();
                 for (String massenge: answer.getMessages()) {
                     System.out.println(massenge);
                 }
@@ -104,24 +164,7 @@ public class RequestControll {
         scan.close();
     }
 
-    public static RequestObject getAnswer() {
-        try{
-            RequestObject answer = (RequestObject) in.readObject();
-            return answer;
-        } catch (IOException e) {
-            System.out.println("Ошибка передачи данных");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Передан ошибочный класс данных");
-        }
-        return new RequestObject();
-    }
+     */
 
-    public static void sendRequest(RequestObject request){
-        try{
-            out.writeObject(request);
-            out.flush();
-        } catch (IOException e) {
-            System.out.println("Ошибка передачи данных");
-        }
-    }
+
 }

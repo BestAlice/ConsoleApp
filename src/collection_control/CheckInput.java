@@ -1,27 +1,20 @@
 package collection_control;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
-import client.RequestControll;
-import client.RequestControll.*;
+import client.ClientMessager;
 
 public class CheckInput  {
 	
-	public Long checkId (String value) throws BadValueException {
+	public static Long checkId (String value, ArrayList<Long> usingId) throws BadValueException {
 		Long id = checkLong(value, 0L, Long.MAX_VALUE, false);
-		RequestObject req = new RequestObject();
-		req.setCommand("get_usindId");
-		RequestControll.sendRequest(req);
-		RequestObject ans = RequestControll.getAnswer();
-		ArrayList<Long> usingId = ans.getUsingId();
 		if (usingId.contains(id)) {
 			return id;
 		}
 		throw new BadValueException("Такого id не существует.");
 	}
 	
-	public <T extends Enum<T>> T checkEnum (String value, Class<T> clazz, boolean can_null) throws BadValueException {
+	public static <T extends Enum<T>> T checkEnum (String value, Class<T> clazz, boolean can_null) throws BadValueException {
 		String newLine = value;
 		T thisEnum;
 		if (!can_null && nullCheck(newLine)){
@@ -37,7 +30,7 @@ public class CheckInput  {
 		return thisEnum;
 	}
 	
-	public int checkInt (String value, int min, int max) throws BadValueException {
+	public static int checkInt (String value, int min, int max) throws BadValueException {
 		String newLine = value;
 		int num;
 		if (nullCheck(newLine)){
@@ -58,7 +51,7 @@ public class CheckInput  {
 		return num;
 	}
 	
-	public String checkString (String value) throws BadValueException {
+	public static String checkString (String value) throws BadValueException {
 		String newLine = value;
 		if (nullCheck(newLine)){
 			throw new BadValueException("Данное поле не может быть null.");
@@ -69,7 +62,7 @@ public class CheckInput  {
 		return newLine.trim();
 	}
 	
-	public Long checkLong (String value, Long min, Long max, boolean can_null) throws BadValueException  {
+	public static Long checkLong (String value, Long min, Long max, boolean can_null) throws BadValueException  {
 		Long num;
 		String newLine = value;
 		
