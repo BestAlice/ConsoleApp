@@ -2,7 +2,9 @@ package labwork_class;
 
 import collection_control.BadValueException;
 import collection_control.CheckInput;
+import collection_control.Serializing;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -21,8 +23,10 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 	
 	private transient  Scanner scan = new Scanner(System.in);
 	transient CheckInput check = new CheckInput();
-	
-	private Long id = index.pollFirst(); //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
+
+
+
+	private Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private String name = ""; //Поле не может быть null, Строка не может быть пустой
     private Coordinates coordinates; //Поле не может быть null
     private LocalDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
@@ -30,17 +34,22 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private Long personalQualitiesMaximum; //Поле может быть null, Значение поля должно быть больше 0
     private Difficulty difficulty; //Поле может быть null
     private Discipline discipline = null; //Поле может быть null
+	private transient int weight = 0;
 
 	public LabWork newLab() {
+		Long new_id;
+		do {
+			new_id = index.pollFirst();
+		} while (usingId.contains(new_id));
+		id = new_id;
 		addId(id);
+		creationDate =LocalDateTime.now();
 		return this;
 	}
 
 
 
 	public LabWork	create(Scanner scan){
-    	//автоматически
-    	creationDate =LocalDateTime.now();
 
     	System.out.println("Создание нового объекта класса LabWork");
     	inputFields(scan);
@@ -55,14 +64,14 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 		minimalPoint = newLab.getMinimalPoint();
 		personalQualitiesMaximum = newLab.getPersonalQualitiesMaximum();
 		difficulty = newLab.getDifficulty();
-		discipline = newLab().getDiscipline();
+		discipline = newLab.getDiscipline();
 	}
 
     public void inputFields(Scanner scan){
 		this.scan = scan;
 		int fieldIndex = 0;
 		while (fieldIndex < 7) {
-			try {System.out.println();
+			try {
 				switch (fieldIndex) {
 					case 0:
 						System.out.print("Введите название Лабораторной: ");
@@ -100,7 +109,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 		System.out.println("Заполнение закончено");
 	}
     
-    public void addId(Long id) {
+    public static void addId(Long id) {
     	usingId.add(id);
     }
 
@@ -158,6 +167,10 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 		return id;
 	}
 
+	public static void removeId (Long id) {
+		usingId.remove(id);
+	}
+
 	public int getMinimalPoint() {
 		return minimalPoint;
 	}
@@ -187,8 +200,22 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 		return usingId;
 	}
 
+	public int getWeight(){
+		return weight;
+	}
+
 	public int compareTo(LabWork o) {
-		return this.getMinimalPoint() - o.getMinimalPoint();
+		return this.getWeight() - o.getWeight();
+	}
+
+	public void findWeight()  {
+		try{
+			byte[] objData = Serializing.serializeObject(this);
+			weight = objData.length;
+		} catch (IOException e) {
+			System.out.println("Неудачная попытка измерить вес объекта");
+		}
+
 	}
 
 	public void show() {
@@ -226,6 +253,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 				info.add(line);
 			}
 		}
+		info.add("");
 		return info;
 	}
 

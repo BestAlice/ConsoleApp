@@ -1,5 +1,6 @@
 package collection_control;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import client.ClientMessager;
@@ -51,7 +52,7 @@ public class CheckInput  {
 		return num;
 	}
 	
-	public static String checkString (String value) throws BadValueException {
+	public static String checkString (String value) throws BadValueException, UnsupportedOperationException {
 		String newLine = value;
 		if (nullCheck(newLine)){
 			throw new BadValueException("Данное поле не может быть null.");
@@ -59,7 +60,14 @@ public class CheckInput  {
 		if (newLine.trim().length() == 0) {
 			throw new BadValueException("Пустая строка.");
 		}
-		return newLine.trim();
+		String final_line = "";
+		try {
+			final_line = new String(newLine.getBytes(), "Cp866"); //"Cp866""UTF-16"
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("Кодировка - хрень");
+		}
+
+ 		return newLine.trim();
 	}
 	
 	public static Long checkLong (String value, Long min, Long max, boolean can_null) throws BadValueException  {

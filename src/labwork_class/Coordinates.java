@@ -11,8 +11,8 @@ public class Coordinates implements Serializable {
 	private Long id;
 	private Long x; //Максимальное значение поля: 691, Поле не может быть null
     private Long y; //Поле не может быть null
-    private Scanner scan;
-	CheckInput check = new CheckInput();
+	transient private Scanner scan;
+	transient private CheckInput check = new CheckInput();
 
     
     //сделать конструктор
@@ -23,7 +23,6 @@ public class Coordinates implements Serializable {
     		int i = 0;
     		while (i < 2) {
 				try{
-					System.out.println();
     			switch (i) {
 					case 0:
 						System.out.print("X: ");
@@ -77,8 +76,9 @@ public class Coordinates implements Serializable {
 
 	public ArrayList<String> getFullInfo(){
 		ArrayList<String> info = new ArrayList<>();
-		info.add("x : " + x);
-		info.add("y : " + y);
+		info.add("coordinates");
+		info.add("\tx : " + x);
+		info.add("\ty : " + y);
 		return info;
 	}
 }

@@ -10,8 +10,8 @@ import java.util.Scanner;
 public class Discipline implements  Serializable {
 	private String name; //Поле не может быть null, Строка не может быть пустой
     private int practiceHours;
-    private Scanner scan;
-	CheckInput check = new CheckInput();
+    private transient Scanner scan;
+	private transient CheckInput check = new CheckInput();
     
     public Discipline(String type, Scanner scan) {
     	this.scan = scan;
@@ -30,7 +30,6 @@ public class Discipline implements  Serializable {
 					practiceHours = check.checkInt(scan.nextLine(), Integer.MIN_VALUE, Integer.MAX_VALUE);
 					i++;break;
     			}} catch (BadValueException e) {e.message("input");}
-				System.out.println();
     		}}
     	}
     

@@ -32,38 +32,51 @@ public class Main {
         }
 
         while (needConnect){
+            CommandReader commandReader =null;
             try {
                 try {
                     if (connection.getSocket() == null){
+
                         connection.connect("localhost", PORT);
+                        //channel = connection.getChannel();
                         socket = connection.getSocket();
-                        channel = connection.getChannel();
                     }
 
-                    CommandReader commandReader = new CommandReader(socket, scan);
+                    commandReader = new CommandReader(socket, scan);
+                    BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
+
+                    String command = "";
                     while (commandReader.isReading()){
                         System.out.print("> ");
-                        commandReader.readCommand(scan.nextLine());
 
+                        while (true) {
+                            if (consoleIn.ready()) {
+                                command = scan.nextLine();
+                                break;
+                            }
+                            if (!socket.isConnected()) {
+                                throw new IOException();
+                            }
+                        }
+                        commandReader.readCommand(command);
 
                     }
                     break;
                 } finally {
                     socket.close();
-                    channel.close();
-                    in.close();
-                    out.close();
                 }
 
             } catch (IOException e) {
-                System.out.println(e.getMessage());
-                System.out.println("Соединение разорвано...");
-                reconnection();
+                if (commandReader.isReading()) {
+                    System.out.println("Соединение разорвано...");
+                    reconnection();
+                } else {
+                    System.out.println("Успешно отстоединился от сервера...");
+                }
             } catch (NullPointerException e) {
                 System.out.println("Соединение не найдено...");
                 reconnection();
             }
-
         }
         System.out.println("Завершение работы приложения");
     }
@@ -72,9 +85,9 @@ public class Main {
         boolean needReconnect = true;
         connection.setSocket(null);
         while (needReconnect){
-            boolean rec = connection.reconnect();
-            if (rec) {
+            if (connection.reconnect()) {
                 socket = connection.getSocket();
+                //channel = connection.getChannel();
                 break;
             } else {
                 System.out.println("Желаете ли попробовать подключиться снова? (yes, no)");

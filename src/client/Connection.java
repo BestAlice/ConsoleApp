@@ -1,6 +1,8 @@
 package client;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.channels.AlreadyConnectedException;
 import java.nio.channels.SocketChannel;
 
@@ -9,16 +11,20 @@ public class Connection {
     SocketChannel channel = null;
     String host;
     int port;
+    SocketAddress socketAddress;
 
     public void connect (String host, int port) throws IOException {
         this.host = host;
         this.port = port;
+
         socket = new Socket(host, port);
+
+        //channel = SocketChannel.open();
+        //socketAddress = new InetSocketAddress(host, port);
+        //channel.connect(socketAddress);
+        //socket = channel.socket();
+        //channel.configureBlocking(false);
         System.out.println("Соединение с сервером установлено...");
-        channel = SocketChannel.open();
-        channel.connect(socket.getRemoteSocketAddress());
-        channel.configureBlocking(false);
-        System.out.println("Канал подключён...");
     }
 
     public boolean reconnect(){
@@ -27,11 +33,13 @@ public class Connection {
         long nowTime = System.currentTimeMillis();
         while(nowTime - startTime < 3000){
             try{
-                socket = new Socket(host, port);
                 try{
-                    channel = SocketChannel.open();
-                    channel.connect(socket.getRemoteSocketAddress());
-                    channel.configureBlocking(false);
+                    socket = new Socket(host, port);
+                    //channel = SocketChannel.open();
+                    //channel.connect(socketAddress);
+                    //socket = channel.socket();
+                    //channel.configureBlocking(false);
+
                 } catch (AlreadyConnectedException e) {
                     System.out.println("Данный канал уже окрыт");
                     System.out.println(e.getMessage());

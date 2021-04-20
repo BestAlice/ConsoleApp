@@ -33,6 +33,11 @@ public class ClientMessageGeneration {
     public void setArgumets(String[] argumets, ArrayList<Long> usingId) {
         this.argumets = argumets;
         this.usingId = usingId;
+        for (Long id: usingId) {
+            if (!LabWork.getUsingId().contains(id)){
+                LabWork.addId(id);
+            }
+        }
     }
 
     public void getUsingId () {
@@ -64,7 +69,7 @@ public class ClientMessageGeneration {
     public void showEl() {
         try {
             Long id = checker.checkId(argumets[1], usingId);
-            message.setCommand("show_short");
+            message.setCommand("show_el");
             message.setId(id);
             message.setReady();
         } catch (BadValueException e) {
@@ -75,7 +80,7 @@ public class ClientMessageGeneration {
     }
 
     public void add(){
-        LabWork newLab = new LabWork().newLab().create(scan);
+        LabWork newLab = new LabWork().create(scan);
         message.setCommand("add");
         message.setLaba(newLab);
         message.setReady();
@@ -122,14 +127,14 @@ public class ClientMessageGeneration {
 
     public void add_if_max(){
         message.setCommand("add_if_max");
-        LabWork laba = new LabWork().newLab().create(scan);
+        LabWork laba = new LabWork().create(scan);
         message.setLaba(laba);
         message.setReady();
     }
 
     public void add_if_min() {
         message.setCommand("add_if_min");
-        LabWork laba = new LabWork().newLab().create(scan);
+        LabWork laba = new LabWork().create(scan);
         message.setLaba(laba);
         message.setReady();
 
@@ -155,10 +160,16 @@ public class ClientMessageGeneration {
 
     public void count_by_difficulty(){
         try{
-            Difficulty dif = checker.checkEnum(argumets[1], Difficulty.class, true );
-            message.setCommand("min_by_creation_date");
-            message.setDif(dif);
-            message.setReady();
+            Difficulty dif = null;
+            if (argumets.length > 1) {
+                dif = checker.checkEnum(argumets[1], Difficulty.class, true );
+                message.setCommand("count_by_difficulty");
+                message.setDif(dif);
+                message.setReady();
+            } else {
+                System.out.println("Ошибка: отсутствует сложность");
+            }
+
         } catch (BadValueException e) {
             e.message("input", "Difficulty");
         }catch (ArrayIndexOutOfBoundsException e) {

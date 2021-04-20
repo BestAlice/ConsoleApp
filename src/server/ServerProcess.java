@@ -6,6 +6,7 @@ import labwork_class.LabWork;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,33 +21,38 @@ import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.Set;
 
+import static java.lang.System.exit;
+
 public class ServerProcess {
-    private static Socket clientSocket;
-    private static ServerSocket server;
-    private static BufferedReader in;
-    private static BufferedWriter out;
     private static ServerSocket serverSocket;
     private static Selector selector;
     private static int PORT;
     private static int BUFFER_SIZE = 4096;
     private static LinkedList<LabWork> LabList;
     private static ByteBuffer sharedBuffer;
-    private static Socket socket = null;
-    private static SocketChannel channel = null;
+    private static Socket clientSocket = null;
+    private static SocketChannel clientSocketChannel = null;
     private static ServerSocketChannel serverSocketChannel;
     private static MessageObject message = null;
     private static MessageObject answer = null;
     private static CommandInterpreter interpreter;
+    private static Scanner scan = new Scanner(System.in);
 
     public ServerProcess(int port, String fileName){
 
         PORT = port;
 
         try {
+            System.out.println("Читаю Json...");
             LabList = ParseJson.parseFromJson(fileName);
+            System.out.println("Чтение прошло успешно");
+        } catch (NullPointerException e){
+            System.out.println("Файл не явялетя Json-ом");
+            exit(1);
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println(e.getMessage());
-            System.exit(0);
+            exit(0);
         }
 
         sharedBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
@@ -58,7 +64,8 @@ public class ServerProcess {
 
     }
 
-    public void run(){
+    public boolean run(){
+        System.out.println("Запускаю сервер...");
         try {
             serverSocketChannel =
                     ServerSocketChannel.open();
@@ -71,46 +78,71 @@ public class ServerProcess {
             selector = Selector.open();
             serverSocketChannel.register(
                     selector, SelectionKey.OP_ACCEPT);
+            System.out.println("Сервер запущен...");
         } catch (IOException e) {
             System.out.println(e.getMessage());
-            System.err.println("Unable to setup environment");
-            System.exit(-1);
+            System.err.println("Невозможно настроить среду для запуска сервера");
+            exit(-1);
         }
+
+        BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
+
         try {
             while (true) {
-                int count = selector.select();
-                // нечего обрабатывать
-                if (count == 0) {
-                    continue;
-                }
 
-                Set keySet = selector.selectedKeys();
-                Iterator itor = keySet.iterator();
-                SelectionKey selectionKey;
-
-                while (itor.hasNext()) {
-                    selectionKey =
-                            (SelectionKey) itor.next();
-                    itor.remove();
-
-                    try {
-                        if (selectionKey.isAcceptable()) {
-                            accept(selectionKey);
+                if (consoleIn.ready()) {
+                    if (scan.hasNext()) {
+                        String command = scan.nextLine();
+                        if (command.equals("exit")) {
+                            if (interpreter.save()) {
+                                selector.close();
+                                serverSocket.close();
+                                return true;
+                            }
                         }
-
-                        if (selectionKey.isReadable()) {
-                            read(selectionKey);
-                        }
-
-
-                    } catch (IOException e) {
-                        selectionKey.cancel();
-                        System.out.println(e.getMessage());
-                    } catch (BufferUnderflowException e) {
-                        System.out.println("Непредниденный разрыв соединения");
-                        selectionKey.cancel();
                     }
                 }
+
+                if (selector.selectNow() != 0) {
+                    /*
+                    int count = selector.select();
+                    // нечего обрабатывать
+                    if (count == 0) {
+                        continue;
+                    }
+
+                     */
+
+
+                    Set keySet = selector.selectedKeys();
+                    Iterator itor = keySet.iterator();
+                    SelectionKey selectionKey;
+
+                    while (itor.hasNext()) {
+                        selectionKey =
+                                (SelectionKey) itor.next();
+                        itor.remove();
+
+                        try {
+                            if (selectionKey.isAcceptable()) {
+                                accept(selectionKey);
+                            }
+
+                            if (selectionKey.isReadable()) {
+                                read(selectionKey);
+                            }
+
+
+                        } catch (IOException e) {
+                            selectionKey.cancel();
+                            System.out.println(e.getMessage());
+                        } catch (BufferUnderflowException e) {
+                            System.out.println("Непредвниденный разрыв соединения");
+                            selectionKey.cancel();
+                        }
+                    }
+                }
+
 
             }
         } catch (IOException e){
@@ -124,32 +156,33 @@ public class ServerProcess {
                 System.out.println("Сервер уже прекратил работу");
             }
         }
+        return true;
     }
 
 
 
-    public static void accept(SelectionKey selectionKey) {
-        Socket socket = null;
-        SocketChannel channel = null;
-        System.out.println("Got acceptable key");
+    public static void accept(SelectionKey selectionKey) throws IOException{
+        clientSocket = null;
+        clientSocketChannel = null;
+        System.out.println("Найдено новое подкючение");
         try {
-            socket = serverSocket.accept();
+            clientSocket = serverSocket.accept();
             System.out.println
-                    ("Connection from: " + socket);
-            channel = socket.getChannel();
+                    ("Connection from: " + clientSocket);
+            clientSocketChannel = clientSocket.getChannel();
         } catch (IOException e) {
-            System.err.println("Unable to accept channel");
+            System.err.println("Невозможно усановить соединение");
             e.printStackTrace();
             selectionKey.cancel();
         }
-        if (channel != null) {
+        if (clientSocketChannel != null) {
             try {
                 System.out.println
-                        ("Watch for something to read");
-                channel.configureBlocking(false);
-                channel.register(selector, SelectionKey.OP_READ);
+                        ("Читаем нового пользоваетелся");
+                clientSocketChannel.configureBlocking(false);
+                clientSocketChannel.register(selector, SelectionKey.OP_READ);
             } catch (IOException e) {
-                System.err.println("Unable to use channel");
+                System.err.println("Невозможно усановить соединение");
                 e.printStackTrace();
                 selectionKey.cancel();
             }
@@ -159,25 +192,29 @@ public class ServerProcess {
 
 
     public static void read(SelectionKey selectionKey) throws IOException{
-        socket = null;
-        channel = null;
+        clientSocket = null;
+        clientSocketChannel = null;
         message = null;
         answer = null;
-        sharedBuffer.clear();
+        //sharedBuffer.clear();
 
         System.out.println("Reading channel...");
-        SocketChannel socketChannel =
+        clientSocketChannel =
                 (SocketChannel) selectionKey.channel();
+        if (!clientSocketChannel.isConnected()) {
+            clientSocketChannel.close();
+        }
+        clientSocket = clientSocketChannel.socket();
         //------------------------------------------------------------------------
         int bytes = -1;
         ByteBuffer new_buffer = ByteBuffer.allocate(BUFFER_SIZE);
-        bytes = socketChannel.read(sharedBuffer);
+        bytes = clientSocketChannel.read(sharedBuffer);
         sharedBuffer.flip();
         new_buffer.put(sharedBuffer.duplicate());
         sharedBuffer.clear();
         new_buffer.flip();
         int summaryLength = new_buffer.getInt();
-        if (bytes >= 4+summaryLength){
+        if (bytes >= summaryLength+4){
             try {
                 byte[] clientObjectData = new byte[summaryLength];
                 new_buffer.position(4);
@@ -190,12 +227,16 @@ public class ServerProcess {
             if (message != null) {
                 System.out.printf("Пользователь запросил выполнение команды %s... \n", message.getCommand());
                 interpreter.setMessage(message);
+                interpreter.setSocket(clientSocket);
+                interpreter.setSelectionKey(selectionKey);
                 interpreter.run();
-                System.out.println("Команда исполнена. Отправляю ответ...");
+                interpreter.setSocket(null);
+                interpreter.setSelectionKey(null);
+                System.out.println("Команда исполнена...");
                 answer = interpreter.getAnswer();
             }
             if (answer != null) {
-
+                System.out.println("Отправляю ответ...");
                 //ByteBuffer answer_buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
                 byte[] ans = Serializing.serializeObject(answer);
@@ -204,7 +245,7 @@ public class ServerProcess {
                 answerDataBuffer.putInt(ans.length);
                 answerDataBuffer.put(ans);
                 answerDataBuffer.flip();
-                socketChannel.write(answerDataBuffer);
+                clientSocketChannel.write(answerDataBuffer);
                 System.out.println("Ответ отправлен");
             }
         }

@@ -6,6 +6,7 @@ import labwork_class.Discipline;
 import labwork_class.LabWork;
 import com.google.gson.*;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.Scanner;
@@ -30,6 +31,7 @@ public class LabWorkDeserializer implements JsonDeserializer<LabWork> {
             } else {
                 laba.setDiscipline(parseDiscipline(jsonObject.get("discipline").getAsJsonObject()),"read");
             }
+            laba.findWeight();
         } catch (JsonParseException e) {
             System.out.println(e.getMessage());
         } catch (BadValueException e) {
@@ -45,10 +47,10 @@ public class LabWorkDeserializer implements JsonDeserializer<LabWork> {
         return laba;
     }
 
-    public Discipline parseDiscipline(JsonObject json) throws BadValueException, NullPointerException{
+    public Discipline parseDiscipline(JsonObject json) throws BadValueException, NullPointerException, UnsupportedEncodingException {
         JsonObject jsonLesson = json;
         Discipline lesson = new Discipline("read", new Scanner(System.in));
-        lesson.setName(jsonLesson.get("name").getAsString(), "read");
+        lesson.setName(json.get("name").getAsString(), "read");
         lesson.setPracticeHours(jsonLesson.get("practiceHours").getAsString(), "read");
         return lesson;
     }

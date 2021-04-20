@@ -23,7 +23,7 @@ public class ClientMessager {
     private DataInputStream inData;
     private DataOutputStream outData;
     private ByteBuffer answerData;
-    private int BUFFER_SIZE = 10000;
+    private int BUFFER_SIZE = 4096;
 
     public ClientMessager(Socket socket) {
         this.socket = socket;
@@ -39,7 +39,7 @@ public class ClientMessager {
         answerData = ByteBuffer.allocate(BUFFER_SIZE);
     }
 
-    public MessageObject getMessage() throws IOException{
+    public MessageObject getAnswer() throws IOException{
         MessageObject answerObject = null;
         try{
             int answerLength = inData.readInt();
@@ -49,9 +49,6 @@ public class ClientMessager {
         } catch (IOException e) {
             socket.getChannel().close();
             socket.close();
-
-
-
             System.out.println("Ошибка передачи данных");
         } catch (ClassNotFoundException e) {
             System.out.println("Передан ошибочный класс данных");
@@ -59,15 +56,18 @@ public class ClientMessager {
         return answerObject;
     }
 
-    public void sendMessage(MessageObject message){
+    public boolean sendMessage(MessageObject message){
         try{
             byte[] objData = Serializing.serializeObject(message);
+            Thread.sleep(500);
             outData.writeInt(objData.length);
             out.write(objData);
             out.flush();
+            return true;
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             System.out.println("Ошибка передачи данных");
+            return false;
         }
     }
 
@@ -77,6 +77,10 @@ public class ClientMessager {
 
 
     /*
+    new String(command.getBytes(),"Cp866")
+
+
+
     public ClientMessager(Socket socket, ObjectInputStream in, ObjectOutputStream out){
         this.socket = socket;
         this.in = in;
@@ -121,7 +125,7 @@ public class ClientMessager {
                 break;
             }
             if (command==null) {continue;}
-            command=new String(command.getBytes(),"Cp866");
+            command=;
             String[] arrLine = command.split(" ");
             String mainCommand = arrLine[0].trim();
             ClientMessageGeneration builder = new ClientMessageGeneration(arrLine, scan);

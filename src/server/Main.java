@@ -48,20 +48,22 @@ public class Main {
             System.exit(0);
         }
 
-
+        fileName = args[1];
         try {
-            fileName = args[1];
             File InputFile = new File(System.getenv(fileName));
             if (!InputFile.exists()) {throw new FileNotFoundException("Файл не существует");}
-            if (!InputFile.canRead()) {throw new Exception("Файл не может быть прочитан");}
-            if (!InputFile.canWrite()) {throw new Exception("В файл нельзя записывать");}
-        } catch (Exception e) {
+            if (!InputFile.canRead()) {throw new FileNotFoundException("Файл не может быть прочитан");}
+            if (!InputFile.canWrite()) {throw new FileNotFoundException("В файл нельзя записывать");}
+        } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
             System.exit(0);
+        } catch (NullPointerException e) {
+            System.out.printf("Не найдено переменной окружения %s\n", fileName);
         }
 
         ServerProcess process = new ServerProcess(PORT, fileName);
         process.run();
+        System.out.println("Работа сервера завершена");
     }
 }
 

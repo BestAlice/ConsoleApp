@@ -1,7 +1,5 @@
 package client;
 
-import collection_control.ComandReader;
-import collection_control.ConsoleCommands;
 import collection_control.MessageObject;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +20,7 @@ public class CommandReader {
     private MessageObject answer = null;
     private boolean readScript = false;
     private boolean reading = true;
+    private ArrayList<Long> usingId;
 
     public CommandReader(Socket socket, Scanner scan) {
         this.socket = socket;
@@ -41,73 +40,90 @@ public class CommandReader {
         if (command==null) {return false;}
         String[] arrLine = command.split(" ");
         String mainCommand = arrLine[0].trim();
-        ArrayList<Long> usingId = getUsingId();
 
+        getUsingId();
         messageGeneration.newMessage();
-        messageGeneration.setArgumets(arrLine, usingId);
+        messageGeneration.setArgumets(arrLine.clone(), usingId);
+
         switch (mainCommand){
             case "help": messageGeneration.help(); break;
             case "info": messageGeneration.info(); break;
             case "show": messageGeneration.show(); break;
-            case "show_el": messageGeneration.showEl(); break;
+            case "show_el":
+                messageGeneration.showEl(); break;
             case "show_short": messageGeneration.showShort(); break;
             case "add": messageGeneration.add(); break;
-            case "update": messageGeneration.update(); break;
-            case "remove_by_id": messageGeneration.remove_by_id(); break;
+            case "update":
+                messageGeneration.update(); break;
+            case "remove_by_id":
+                messageGeneration.remove_by_id(); break;
             case "clear": messageGeneration.clear(); break;
             case "execute_script":
                 try {
                     executeScript(arrLine[1].trim());
+                    return true;
                 } catch (ArrayIndexOutOfBoundsException e) {
                     System.out.println("Не введено имя читаемого файла");
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }break;
-            case "exit":    messageGeneration.exit();
-                            reading = false; break;
+            case "exit":
+                try {
+                    messageGeneration.exit();
+                    messager.sendMessage(messageGeneration.getMessage());
+                }catch (NullPointerException e) {}
+                reading = false;
+                return true;
             case "remove_first": messageGeneration.remove_first(); break;
             case "add_if_max": messageGeneration.add_if_max(); break;
             case "add_if_min": messageGeneration.add_if_min(); break;
-            case "remove_any_by_personal_qualities_maximum": messageGeneration.remove_any_by_personal_qualities_maximum(); break;
+            case "remove_any_by_personal_qualities_maximum":
+                messageGeneration.remove_any_by_personal_qualities_maximum(); break;
             case "min_by_creation_date": messageGeneration.min_by_creation_date(); break;
             case "count_by_difficulty": messageGeneration.count_by_difficulty(); break;
-            default: System.out.printf("Команды %s не существует\n", mainCommand);
+            default: System.out.printf("Команды %s не существует\n", mainCommand); return true;
         }
         message = messageGeneration.getMessage();
         if (message.getReady()) {
-            messager.sendMessage(messageGeneration.getMessage());
-            answer = messager.getMessage();
-            for (String message : answer.getMessages()) {
-                System.out.println(message);
+            if (messager.sendMessage(messageGeneration.getMessage())) {
+                answer = messager.getAnswer();
+                for (String message : answer.getMessages()) {
+                    System.out.println(message.trim() );
+                }
+                return true;
             }
-            return true;
+
         } else {
-            System.out.println("Сообщение не готово к отправке");
+            System.out.println("Сообщение сформированно некорректно");
             return false;
         }
+        return true;
     }
 
-    private ArrayList<Long> getUsingId() throws  IOException{
+    public void getUsingId() throws  IOException{
         messageGeneration.newMessage();
         messageGeneration.getUsingId();
         messager.sendMessage(messageGeneration.getMessage());
-        answer = messager.getMessage();
-        ArrayList<Long> usungId = new ArrayList<>();
+        answer = messager.getAnswer();
+        usingId = new ArrayList<>();
         for (String message : answer.getMessages()) {
-            usungId.add(Long.getLong(message));
+            usingId.add(Long.parseLong(message));
         }
-        return usungId;
     }
 
-    public boolean executeScript(String fileName) throws Exception{
+    public boolean executeScript(String fileName) throws  IOException, InterruptedException{
         File file = new File(fileName);
-        if (!file.canRead()) {throw new Exception("Файл не может быть прочитан");}
+        if (!file.canRead()) {throw new IOException("Файл не может быть прочитан");}
         FileInputStream stream = new FileInputStream(file);
         readScript = true;
-        CommandReader commandReader = new CommandReader(socket, new Scanner(stream));
+        Scanner scriptScan = new Scanner(stream);
+        CommandReader commandReader = new CommandReader(socket, scriptScan);
         while (commandReader.isReading()){
             try {
-                commandReader.readCommand(scan.nextLine());
+                Thread.sleep(1000);
+                String new_command = scriptScan.nextLine();
+                System.out.println(new_command);
+                commandReader.readCommand(new_command);
             } catch (NoSuchElementException e) {
                 System.out.println("Чтение скрипта завершено");
                 break;

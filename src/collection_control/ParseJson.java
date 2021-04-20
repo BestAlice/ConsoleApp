@@ -15,7 +15,7 @@ import java.util.LinkedList;
 import java.util.stream.Collectors;
 
 public class ParseJson {
-    public static LinkedList<LabWork> parseFromJson(String varName) throws FileNotFoundException{
+    public static LinkedList<LabWork> parseFromJson(String varName) throws FileNotFoundException, UnsupportedEncodingException {
         Gson gson = new Gson();
         LinkedList<LabWork> LabList = new LinkedList<>();
         FileInputStream in;
@@ -25,7 +25,7 @@ public class ParseJson {
 
         File fileWay = new File(System.getenv(varName));
         in = new FileInputStream(fileWay);
-        text = new InputStreamReader(in);
+        text = new InputStreamReader(in, "UTF-8");
         buffer = new BufferedReader(text);
         finalText = buffer.lines().collect(Collectors.joining()).replaceAll("\t", "").replaceAll(" ", "").replaceAll("\n", "").trim();;
         gson = new GsonBuilder()
