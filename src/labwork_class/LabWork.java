@@ -14,10 +14,12 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 	
 	private transient  static LinkedList<Long> index = new LinkedList<>();
 	private transient  static ArrayList<Long> usingId = new ArrayList<>();
-	static  {for ( Long i = 0L; i < 1000L; i++ ) {
-		index.add(i + 1);
+	static  {
+		for ( Long i = 0L; i < 1000L; i++ ) {
+			index.add(i + 1);
+		}
+		Collections.shuffle(index);
 	}
-	Collections.shuffle(index);}
 	
 	
 	

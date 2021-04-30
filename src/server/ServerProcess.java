@@ -20,19 +20,22 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static java.lang.System.exit;
 
 public class ServerProcess {
     private static ServerSocket serverSocket;
-    private static Selector selector;
+    //private static Selector selector;
     private static int PORT;
-    private static int BUFFER_SIZE = 4096;
+    //private static int BUFFER_SIZE = 4096;
     private static LinkedList<LabWork> LabList;
-    private static ByteBuffer sharedBuffer;
+    //private static ByteBuffer sharedBuffer;
     private static Socket clientSocket = null;
-    private static SocketChannel clientSocketChannel = null;
-    private static ServerSocketChannel serverSocketChannel;
+    //private static SocketChannel clientSocketChannel = null;
+    //private static ServerSocketChannel serverSocketChannel;
     private static MessageObject message = null;
     private static MessageObject answer = null;
     private static CommandInterpreter interpreter;
@@ -58,7 +61,6 @@ public class ServerProcess {
         sharedBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
         interpreter = new CommandInterpreter(LabList, fileName);
 
-
         selector = null;
         serverSocket = null;
 
@@ -79,6 +81,7 @@ public class ServerProcess {
             serverSocketChannel.register(
                     selector, SelectionKey.OP_ACCEPT);
             System.out.println("Сервер запущен...");
+            ExecutorService executorService = Executors.newCachedThreadPool();
         } catch (IOException e) {
             System.out.println(e.getMessage());
             System.err.println("Невозможно настроить среду для запуска сервера");
@@ -125,11 +128,15 @@ public class ServerProcess {
 
                         try {
                             if (selectionKey.isAcceptable()) {
-                                accept(selectionKey);
+                                executor.execute(new Accepter(selectionKey));
                             }
 
                             if (selectionKey.isReadable()) {
-                                read(selectionKey);
+                                executor.execute(new Reader(selectionKey));
+                            }
+
+                            if (selectionKey.isWritable()) {
+                                //read(selectionKey);
                             }
 
 
@@ -159,8 +166,42 @@ public class ServerProcess {
         return true;
     }
 
-
-
+    public class Accepter implements Runnable {
+        SelectionKey selectionKey;
+        public Accepter(SelectionKey selectionKey){
+            this.selectionKey = selectionKey;
+        }
+        @Override
+        public void run() {
+            clientSocket = null;
+            clientSocketChannel = null;
+            System.out.println("Найдено новое подкючение");
+            try {
+                clientSocket = serverSocket.accept();
+                System.out.println
+                        ("Connection from: " + clientSocket);
+                clientSocketChannel = clientSocket.getChannel();
+            } catch (IOException e) {
+                System.err.println("Невозможно усановить соединение");
+                e.printStackTrace();
+                selectionKey.cancel();
+            }
+            if (clientSocketChannel != null) {
+                try {
+                    System.out.println
+                            ("Читаем нового пользоваетелся");
+                    clientSocketChannel.configureBlocking(false);
+                    clientSocketChannel.register(selector, SelectionKey.OP_READ);
+                    User new_user = new User(clientSocketChannel);
+                } catch (IOException e) {
+                    System.err.println("Невозможно усановить соединение");
+                    e.printStackTrace();
+                    selectionKey.cancel();
+                }
+            }
+        }
+    }
+/*
     public static void accept(SelectionKey selectionKey) throws IOException{
         clientSocket = null;
         clientSocketChannel = null;
@@ -189,7 +230,74 @@ public class ServerProcess {
         }
     }
 
+ */
 
+    public class Reader implements Runnable  {
+        SelectionKey selectionKey;
+        public Reader(SelectionKey selectionKey){
+            this.selectionKey = selectionKey;
+        }
+
+        public void run() {
+            try {
+                System.out.println("Reading channel...");
+                clientSocketChannel =
+                        (SocketChannel) selectionKey.channel();
+                if (!clientSocketChannel.isConnected()) {
+                    clientSocketChannel.close();
+                }
+                clientSocket = clientSocketChannel.socket();
+                //------------------------------------------------------------------------
+                int bytes = -1;
+                ByteBuffer new_buffer = ByteBuffer.allocate(BUFFER_SIZE);
+                bytes = clientSocketChannel.read(sharedBuffer);
+                sharedBuffer.flip();
+                new_buffer.put(sharedBuffer.duplicate());
+                sharedBuffer.clear();
+                new_buffer.flip();
+                int summaryLength = new_buffer.getInt();
+                if (bytes >= summaryLength+4){
+                    try {
+                        byte[] clientObjectData = new byte[summaryLength];
+                        new_buffer.position(4);
+                        new_buffer.get(clientObjectData, 0, summaryLength);
+                        message = (MessageObject) Serializing.deserializeObject(clientObjectData);
+                    } catch (ClassNotFoundException e){
+                        System.out.println("Ошибка распаковки пакета...");
+                        System.out.println(e.getMessage());
+                    }
+                    if (message != null) {
+                        System.out.printf("Пользователь запросил выполнение команды %s... \n", message.getCommand());
+                        interpreter.setMessage(message);
+                        interpreter.setSocket(clientSocket);
+                        interpreter.setSelectionKey(selectionKey);
+                        interpreter.run();
+                        interpreter.setSocket(null);
+                        interpreter.setSelectionKey(null);
+                        System.out.println("Команда исполнена...");
+                        answer = interpreter.getAnswer();
+                    }
+                }
+            } catch (IOException e) {
+                selectionKey.cancel();
+                System.out.println(e.getMessage());
+            } catch (BufferUnderflowException e) {
+                System.out.println("Непредвниденный разрыв соединения");
+                selectionKey.cancel();
+            }
+        }
+    }
+
+    public class Writer implements Runnable {
+        SelectionKey selectionKey;
+        public Writer(SelectionKey selectionKey){
+            this.selectionKey = selectionKey;
+        }
+        @Override
+        public void run() {
+
+        }
+    }
 
     public static void read(SelectionKey selectionKey) throws IOException{
         clientSocket = null;
@@ -252,5 +360,12 @@ public class ServerProcess {
         System.out.println("Next...");
     }
 
+
+    ExecutorService service = Executors.newCachedThreadPool();
+
+    Executor executor = (runnable) -> {
+        new Thread(runnable).start();
+        service.submit(runnable);
+    };
 
 }
