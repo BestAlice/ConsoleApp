@@ -22,8 +22,7 @@ public class Coordinates implements Serializable {
     		System.out.println("¬ведите координаты");
     		int i = 0;
     		while (i < 2) {
-				try{
-    			switch (i) {
+				try{ switch (i) {
 					case 0:
 						System.out.print("X: ");
 						x =  check.checkLong(scan.nextLine(), Long.MIN_VALUE, 691L, false);
@@ -33,7 +32,6 @@ public class Coordinates implements Serializable {
 						y = check.checkLong(scan.nextLine(), Long.MIN_VALUE, Long.MAX_VALUE, false);
 						i++;break;
 				}} catch (BadValueException e) {e.message("input");}
-
     		}
     	}
     }
@@ -70,8 +68,9 @@ public class Coordinates implements Serializable {
     }
 
     public void show(){
-    	System.out.println("x : " + x);
-    	System.out.println("y : " + y);
+		System.out.println("coordinates");
+    	System.out.println("\tx : " + x);
+    	System.out.println("\ty : " + y);
 	}
 
 	public ArrayList<String> getFullInfo(){

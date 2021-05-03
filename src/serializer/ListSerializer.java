@@ -5,10 +5,11 @@ import com.google.gson.*;
 
 import java.lang.reflect.Type;
 import java.util.LinkedList;
+import java.util.List;
 
-public class LinkedListSerializer implements JsonSerializer<LinkedList<LabWork>> {
+public class ListSerializer implements JsonSerializer<List<LabWork>> {
 
-    public JsonElement serialize(LinkedList<LabWork> list, Type typeOfSrc, JsonSerializationContext context)
+    public JsonElement serialize(List<LabWork> list, Type typeOfSrc, JsonSerializationContext context)
     {
     JsonObject result = new JsonObject();
     JsonArray labList = new JsonArray();

@@ -92,7 +92,6 @@ public class CommandReader {
                 }
                 return true;
             }
-
         } else {
             System.out.println("Сообщение сформированно некорректно");
             return false;
@@ -105,9 +104,11 @@ public class CommandReader {
         messageGeneration.getUsingId();
         messager.sendMessage(messageGeneration.getMessage());
         answer = messager.getAnswer();
-        usingId = new ArrayList<>();
-        for (String message : answer.getMessages()) {
-            usingId.add(Long.parseLong(message));
+        if (answer != null) {
+            usingId = new ArrayList<>();
+            for (String message : answer.getMessages()) {
+                usingId.add(Long.parseLong(message));
+            }
         }
     }
 

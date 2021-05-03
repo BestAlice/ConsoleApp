@@ -63,7 +63,6 @@ public class Main {
 
         ServerProcess process = new ServerProcess(PORT, fileName);
         process.run();
-        System.out.println("Работа сервера завершена");
     }
 }
 

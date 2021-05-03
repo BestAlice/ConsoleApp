@@ -20,12 +20,10 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 		}
 		Collections.shuffle(index);
 	}
-	
-	
-	
+
+
 	private transient  Scanner scan = new Scanner(System.in);
 	transient CheckInput check = new CheckInput();
-
 
 
 	private Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
@@ -34,8 +32,10 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private LocalDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
     private int minimalPoint; //Значение поля должно быть больше 0
     private Long personalQualitiesMaximum; //Поле может быть null, Значение поля должно быть больше 0
-    private Difficulty difficulty; //Поле может быть null
+    private Difficulty difficulty = null; //Поле может быть null
     private Discipline discipline = null; //Поле может быть null
+
+
 	private transient int weight = 0;
 
 	public LabWork newLab() {
@@ -164,6 +164,8 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     	catch (Exception e) 
     	{e.getMessage();}
     }
+
+    public void setId(Long id) {this.id = id;}
 
 	public Long getId() {
 		return id;

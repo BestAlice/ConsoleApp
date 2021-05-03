@@ -38,7 +38,6 @@ public class Main {
                     if (connection.getSocket() == null){
 
                         connection.connect("localhost", PORT);
-                        //channel = connection.getChannel();
                         socket = connection.getSocket();
                     }
 

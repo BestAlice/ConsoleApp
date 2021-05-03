@@ -16,14 +16,7 @@ public class Connection {
     public void connect (String host, int port) throws IOException {
         this.host = host;
         this.port = port;
-
         socket = new Socket(host, port);
-
-        //channel = SocketChannel.open();
-        //socketAddress = new InetSocketAddress(host, port);
-        //channel.connect(socketAddress);
-        //socket = channel.socket();
-        //channel.configureBlocking(false);
         System.out.println("Соединение с сервером установлено...");
     }
 
@@ -35,11 +28,6 @@ public class Connection {
             try{
                 try{
                     socket = new Socket(host, port);
-                    //channel = SocketChannel.open();
-                    //channel.connect(socketAddress);
-                    //socket = channel.socket();
-                    //channel.configureBlocking(false);
-
                 } catch (AlreadyConnectedException e) {
                     System.out.println("Данный канал уже окрыт");
                     System.out.println(e.getMessage());
@@ -62,14 +50,6 @@ public class Connection {
 
     public void setSocket(Socket socket){
         this.socket = socket;
-    }
-
-    public SocketChannel getChannel(){
-        return channel;
-    }
-
-    public void setChannel(SocketChannel channel){
-        this.channel = channel;
     }
 
 }

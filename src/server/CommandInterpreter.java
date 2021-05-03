@@ -17,17 +17,18 @@ import java.util.*;
 public class CommandInterpreter {
     private  MessageObject message = null;
     private  MessageObject answer = null;
-    private LinkedList<LabWork> LabList;
-    private String fileName;
+    private static List<LabWork> LabList;
+    private static String fileName;
     private LocalDateTime timeInit =  LocalDateTime.now();
-    private   static ArrayList<Long> usingId = LabWork.getUsingId();
+    private static ArrayList<Long> usingId = LabWork.getUsingId();
     private Socket socket = null;
-    private SelectionKey selectionKey = null;
+    private User user;
 
-    public CommandInterpreter(LinkedList<LabWork> LabList, String fileName){
-        this.LabList = LabList;
-        this.fileName = fileName;
+    public CommandInterpreter(){
+        this.LabList = ServerProcess.getLabList();
     }
+
+    public void setUser(User user){this.user = user;}
 
     public void setMessage(MessageObject message){
         this.message = message;
@@ -37,7 +38,6 @@ public class CommandInterpreter {
     public void setSocket(Socket socket){
         this.socket = socket;
     }
-    public void setSelectionKey (SelectionKey selectionKey) {this.selectionKey = selectionKey;}
 
     public MessageObject getAnswer(){
         return answer;
@@ -45,6 +45,15 @@ public class CommandInterpreter {
 
     public void run() {
         String command = message.getCommand();
+        /*
+        if (command == "sing_in") {
+            ArrayList<User> userList = ServerProcess.getUserList();
+        }
+        if (command == "sing_up") {
+
+        }
+
+         */
         switch (command) {
             case "help": help(); break;
             case "info": info(); break;
@@ -72,9 +81,10 @@ public class CommandInterpreter {
         answer.addMessage(String.format("Команды %s не существует\n", message.getCommand()));
     }
 
+
     private void exit() {
         try{
-            selectionKey.cancel();
+            user.setRunning(false);
             socket.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -193,12 +203,12 @@ public class CommandInterpreter {
 
     public void clear(){
         while (!LabList.isEmpty()) {
-            remove(LabList.getFirst());
+            remove(LabList.get(0));
         }
         answer.addMessage("Отчистка завершена");
     }
 
-    public boolean save() throws UnsupportedEncodingException{
+    public boolean save() {
         String json = ParseJson.parseToJson(LabList);
         File file = new File(System.getenv(fileName));
         try {
@@ -209,15 +219,17 @@ public class CommandInterpreter {
             System.out.println("Сохранение прошло успешно");
             return true;
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Файл сохранения не найден");
+        } catch (UnsupportedEncodingException e) {
+            System.out.println("Неподдерживаемая кодировка");
         }
         return false;
     }
 
     public void remove_first(){
         try{
-            LabWork.removeId(LabList.getFirst().getId());
-            LabList.removeFirst();
+            LabWork.removeId(LabList.get(0).getId());
+            LabList.remove(0);
             answer.addMessage("Удаление завершено");
         } catch (NoSuchElementException e) {
             answer.addMessage("Коллекция пуста");
@@ -276,7 +288,7 @@ public class CommandInterpreter {
 
     public void min_by_creation_date(){
         try {
-            LabWork minTime = LabList.getFirst();
+            LabWork minTime = LabList.get(0);
             for (LabWork lab : LabList) {
                 if (comparatorByDate.compare(minTime.getCreationDate(), lab.getCreationDate()) > 0) {
                     minTime = lab;
@@ -324,7 +336,9 @@ public class CommandInterpreter {
         return null;
     }
 
-
+    public static void setFileName(String file) {
+        fileName = file;
+    }
 
     public void sort(){
         LabList.sort(LabWork::compareTo);

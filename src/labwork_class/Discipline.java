@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Discipline implements  Serializable {
+	private Long id;
 	private String name; //Поле не может быть null, Строка не может быть пустой
     private int practiceHours;
     private transient Scanner scan;
@@ -65,5 +66,13 @@ public class Discipline implements  Serializable {
 		info.add("\tdiscipline name : " + name);
 		info.add("\tpracticeHours : " + practiceHours);
 		return info;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 }

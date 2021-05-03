@@ -93,6 +93,7 @@ public class CheckInput  {
 	}
 	
 	public static boolean nullCheck(String newLine) {
+		if (newLine == null) {return true;}
 		if (newLine.equals("") || newLine.equals("null")) {
 			return true;
 		} else {

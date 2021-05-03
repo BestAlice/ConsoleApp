@@ -6,10 +6,11 @@ import com.google.gson.*;
 
 import java.lang.reflect.Type;
 import java.util.LinkedList;
+import java.util.List;
 
-public class LinkedListDeserializer implements JsonDeserializer<LinkedList> {
+public class ListDeserializer implements JsonDeserializer<List> {
 
-	public LinkedList deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException{
+	public List deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException{
 		LinkedList<LabWork> result = new LinkedList<>();
 		JsonObject jsonObject = json.getAsJsonObject();
 		JsonArray jsonList = jsonObject.get("list").getAsJsonArray();

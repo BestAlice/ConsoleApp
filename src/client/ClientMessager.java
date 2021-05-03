@@ -7,19 +7,14 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import collection_control.Serializing;
-import org.omg.CORBA.Object;
-
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 public class ClientMessager {
     private static boolean executed = false;
     private MessageObject request;
     private Socket socket;
     private SocketChannel channel;
-    private InputStream in;
-    private OutputStream out;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
     private DataInputStream inData;
     private DataOutputStream outData;
     private ByteBuffer answerData;
@@ -28,24 +23,24 @@ public class ClientMessager {
     public ClientMessager(Socket socket) {
         this.socket = socket;
         try {
-            in = socket.getInputStream();
-            out = socket.getOutputStream();
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-
-        inData = new DataInputStream(in);
-        outData = new DataOutputStream(out);
-        answerData = ByteBuffer.allocate(BUFFER_SIZE);
     }
 
     public MessageObject getAnswer() throws IOException{
         MessageObject answerObject = null;
-        try{
+        try{/*
             int answerLength = inData.readInt();
             byte[] answerData = new byte[answerLength];
             inData.readFully(answerData);
             answerObject = (MessageObject) Serializing.deserializeObject(answerData);
+            */
+            answerObject = (MessageObject) in.readObject();
+            return answerObject;
+
         } catch (IOException e) {
             socket.getChannel().close();
             socket.close();
@@ -58,14 +53,17 @@ public class ClientMessager {
 
     public boolean sendMessage(MessageObject message){
         try{
+            /*
             byte[] objData = Serializing.serializeObject(message);
             Thread.sleep(500);
             outData.writeInt(objData.length);
             out.write(objData);
             out.flush();
+             */
+            out.writeObject(message);
+            out.flush();
             return true;
-
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             System.out.println("Ошибка передачи данных");
             return false;
         }

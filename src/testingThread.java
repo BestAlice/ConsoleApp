@@ -1,44 +1,40 @@
+import collection_control.BadValueException;
+import collection_control.DataBase;
+import labwork_class.Coordinates;
+import labwork_class.Discipline;
+import labwork_class.LabWork;
 
+import java.util.Scanner;
 
-class CommonObject
-{
-    int counter = 0;
-}
-
-class CounterThread implements Runnable
-{
-    CommonObject res;
-    CounterThread(CommonObject res)
-    {
-        this.res = res;
-    }
-    @Override
-    public void run()
-    {
-      synchronized(res) {
-        res.counter = 1;
-        for (int i = 1; i < 5; i++){
-            System.out.printf("'%s' - %d\n",
-                    Thread.currentThread().getName(),
-                    res.counter);
-            res.counter++;
-            try {
-                Thread.sleep(100);
-            }
-            catch(InterruptedException e){}
-        }
-      }
-    }
-}
 public class testingThread
 {
     public static void main(String[] args) {
-        CommonObject commonObject= new CommonObject();
-        for (int i = 1; i < 6; i++) {
-            Thread t;
-            t = new Thread(new CounterThread(commonObject));
-            t.setName("Поток " + i);
-            t.start();
+        Coordinates coord = new Coordinates("read", new Scanner(System.in));
+        Discipline discipline = new Discipline("read", new Scanner(System.in));
+        LabWork lab = new LabWork().newLab();
+        try {
+            coord.setX("2", "read");
+            coord.setY("6", "read");
+            discipline.setName("Name", "read");
+            discipline.setPracticeHours("333", "read");
+            lab.setName("makarena", "read");
+            lab.setCoordinates(coord, "read");
+            lab.setMinimalPoint("345", "read");
+            lab.setPersonalQualitiesMaximum("324", "read");
+            lab.setDifficulty("EASY", "read");
+            lab.setDiscipline(discipline, "read");
+        } catch (BadValueException e ) {
+            System.out.println("BAD VALUE");
+            System.out.println(e.getMessage());
         }
+
+
+        DataBase BD = new DataBase();
+        //BD.createIterators();
+        BD.insertLabWork(lab);
+
+        LabWork readed_laba = BD.selectLabWork(lab.getId());
+        readed_laba.show();
+
     }
 }
