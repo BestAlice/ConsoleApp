@@ -6,7 +6,6 @@ import labwork_class.LabWork;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.channels.SelectionKey;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -15,7 +14,6 @@ public class CommandInterpreter {
     private  MessageObject message = null;
     private  MessageObject answer = null;
     private static List<LabWork> LabList;
-    private static String fileName;
     private static DataBase BD;
     private LocalDateTime timeInit =  LocalDateTime.now();
     private static ArrayList<Long> usingId = LabWork.getUsingId();
@@ -269,24 +267,6 @@ public class CommandInterpreter {
         answer.addMessage("Удаление пренадлежащих пользователю работ закончено");
     }
 
-    public boolean save() {
-        String json = ParseJson.parseToJson(LabList);
-        File file = new File(System.getenv(fileName));
-        try {
-            PrintWriter writer = new PrintWriter(file, "UTF-8"); //Cp866 Cp1251
-
-            writer.print(json);
-            writer.close();
-            System.out.println("Сохранение прошло успешно");
-            return true;
-        } catch (FileNotFoundException e) {
-            System.out.println("Файл сохранения не найден");
-        } catch (UnsupportedEncodingException e) {
-            System.out.println("Неподдерживаемая кодировка");
-        }
-        return false;
-    }
-
     public void remove_first(){
         try{
             Long id = LabList.get(0).getId();
@@ -415,10 +395,6 @@ public class CommandInterpreter {
         }
         System.out.printf("Id %d не существует", id);
         return null;
-    }
-
-    public static void setFileName(String file) {
-        fileName = file;
     }
 
     public void sort(){

@@ -52,7 +52,6 @@ public class Main {
                         }
 
                         commandReader = new CommandReader(socket, scan);
-                        //BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
                         autorizate = new Thread(new Authorization());
                         running = new Thread(new Run());
                         autorizate.run();
@@ -133,7 +132,6 @@ public class Main {
         while (needReconnect){
             if (connection.reconnect()) {
                 socket = connection.getSocket();
-                //channel = connection.getChannel();
                 break;
             } else {
                 System.out.println("Желаете ли попробовать подключиться снова? (yes, no)");

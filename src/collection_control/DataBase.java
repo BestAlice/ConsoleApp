@@ -5,8 +5,6 @@ import labwork_class.Discipline;
 import labwork_class.LabWork;
 import server.User;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -495,8 +493,6 @@ public class DataBase {
         }
         return user;
     }
-
-    //public Long selectMaseter (Long id ) {}
 
     public List<Long> selectAllLabWorkId() {
         List<Long> id_List = new LinkedList<>();

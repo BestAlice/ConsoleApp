@@ -1,0 +1,17 @@
+\! chcp 1251
+CREATE DATABASE labworks;
+\c labworks
+
+create sequence lab_id_iterator start with 1 increment by 1;
+create sequence lab_id_iterator start with 1 increment by 1;
+create sequence discipline_id_iterator start with 1 increment by 1;
+create sequence user_id_iterator start with 1 increment by 1;
+
+create type difficulty as enum ('EASY','IMPOSSIBLE','INSANE','TERRIBLE');
+
+create table users(id bigint, login text, password text);
+create table coordinates(id bigint, x bigint, y bigint);
+create table discipline(id bigint, name text, practiceHours bigint);
+create table labworks (id bigint primary key, name text, coordinates_id bigint, creationdate timestamp, minimalPoint integer, personalQualitiesMaximum bigint, difficulty difficulty, discipline_id bigint, user_id bigint);
+
+Теперь должно заработать

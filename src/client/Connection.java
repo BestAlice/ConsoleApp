@@ -1,6 +1,5 @@
 package client;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.AlreadyConnectedException;
@@ -11,7 +10,6 @@ public class Connection {
     SocketChannel channel = null;
     String host;
     int port;
-    SocketAddress socketAddress;
 
     public void connect (String host, int port) throws IOException {
         this.host = host;

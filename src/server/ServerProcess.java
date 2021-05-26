@@ -2,40 +2,19 @@ package server;
 
 import collection_control.*;
 import labwork_class.LabWork;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.BufferUnderflowException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import static java.lang.System.exit;
-import static java.lang.System.in;
 
 public class ServerProcess {
     private static ServerSocket serverSocket;
-    //private static Selector selector;
     private static int PORT;
-    //private static int BUFFER_SIZE = 4096;
     private static List<LabWork> LabList;
-    //private static ByteBuffer sharedBuffer;
-    private static Socket clientSocket = null;
-    //private static SocketChannel clientSocketChannel = null;
-    //private static ServerSocketChannel serverSocketChannel;
-    private static MessageObject message = null;
-    private static MessageObject answer = null;
     private static Scanner scan = new Scanner(System.in);
     private static ArrayList<User> UserList = new ArrayList<>();
     private static Socket socket = null;
@@ -43,10 +22,9 @@ public class ServerProcess {
     private static ExecutorService commandExecutorPool = Executors.newCachedThreadPool();
     private static ExecutorService writerPool = Executors.newCachedThreadPool();
     private static ExecutorService accepterPool = Executors.newCachedThreadPool();
-    //private static Thread accepterThreat;
 
 
-    public ServerProcess(int port, String fileName){
+    public ServerProcess(int port){
 
         PORT = port;
 
@@ -57,15 +35,9 @@ public class ServerProcess {
             for (LabWork lab: LabList) {
                 LabWork.addId(lab.getId());
             }
-            /*
-            System.out.println("Читаю Json...");
-            LabList = Collections.synchronizedList(ParseJson.parseFromJson(fileName));
-            System.out.println("Чтение прошло успешно");
-            CommandInterpreter.setFileName(fileName);
-
-             */
         } catch (NullPointerException e){
-            System.out.println("Файл не явялетя Json-ом");
+            System.out.println("NullPointer");
+            System.out.println(e.getMessage());
             exit(1);
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,8 +59,6 @@ public class ServerProcess {
             System.err.println("Невозможно настроить среду для запуска сервера");
             exit(-1);
         }
-
-        //BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
 
             try {
                 deamonExecutor.execute(new consoleReader());
@@ -162,73 +132,7 @@ public class ServerProcess {
                 System.out.println("Закрыт Accepter");
             }
         }
-        /*
-        SelectionKey selectionKey;
-        public Accepter(SelectionKey selectionKey){
-            this.selectionKey = selectionKey;
-        }
-        @Override
-        public void run() {
-            clientSocket = null;
-            clientSocketChannel = null;
-            System.out.println("Найдено новое подкючение");
-            try {
-                clientSocket = serverSocket.accept();
-                System.out.println
-                        ("Connection from: " + clientSocket);
-                clientSocketChannel = clientSocket.getChannel();
-            } catch (IOException e) {
-                System.err.println("Невозможно усановить соединение");
-                e.printStackTrace();
-                selectionKey.cancel();
-            }
-            if (clientSocketChannel != null) {
-                try {
-                    System.out.println
-                            ("Читаем нового пользоваетелся");
-                    clientSocketChannel.configureBlocking(false);
-                    clientSocketChannel.register(selector, SelectionKey.OP_READ);
-                    User new_user = new User(clientSocketChannel);
-                } catch (IOException e) {
-                    System.err.println("Невозможно усановить соединение");
-                    e.printStackTrace();
-                    selectionKey.cancel();
-                }
-            }
-        }
-
-         */
     }
-/*
-    public static void accept(SelectionKey selectionKey) throws IOException{
-        clientSocket = null;
-        clientSocketChannel = null;
-        System.out.println("Найдено новое подкючение");
-        try {
-            clientSocket = serverSocket.accept();
-            System.out.println
-                    ("Connection from: " + clientSocket);
-            clientSocketChannel = clientSocket.getChannel();
-        } catch (IOException e) {
-            System.err.println("Невозможно усановить соединение");
-            e.printStackTrace();
-            selectionKey.cancel();
-        }
-        if (clientSocketChannel != null) {
-            try {
-                System.out.println
-                        ("Читаем нового пользоваетелся");
-                clientSocketChannel.configureBlocking(false);
-                clientSocketChannel.register(selector, SelectionKey.OP_READ);
-            } catch (IOException e) {
-                System.err.println("Невозможно усановить соединение");
-                e.printStackTrace();
-                selectionKey.cancel();
-            }
-        }
-    }
-
- */
 
     public class Reader implements Runnable  {
         User user;
@@ -250,53 +154,6 @@ public class ServerProcess {
                 }
             }
             System.out.println("Этот Reader завершил свою работу");
-            /*
-            try {
-                System.out.println("Reading channel...");
-                clientSocketChannel =
-                        (SocketChannel) selectionKey.channel();
-                if (!clientSocketChannel.isConnected()) {
-                    clientSocketChannel.close();
-                }
-                clientSocket = clientSocketChannel.socket();
-                //------------------------------------------------------------------------
-                int bytes = -1;
-                ByteBuffer new_buffer = ByteBuffer.allocate(BUFFER_SIZE);
-                bytes = clientSocketChannel.read(sharedBuffer);
-                sharedBuffer.flip();
-                new_buffer.put(sharedBuffer.duplicate());
-                sharedBuffer.clear();
-                new_buffer.flip();
-                int summaryLength = new_buffer.getInt();
-                if (bytes >= summaryLength+4){
-                    try {
-                        byte[] clientObjectData = new byte[summaryLength];
-                        new_buffer.position(4);
-                        new_buffer.get(clientObjectData, 0, summaryLength);
-                        message = (MessageObject) Serializing.deserializeObject(clientObjectData);
-                    } catch (ClassNotFoundException e){
-                        System.out.println("Ошибка распаковки пакета...");
-                        System.out.println(e.getMessage());
-                    }
-                    if (message != null) {
-                        System.out.printf("Пользователь запросил выполнение команды %s... \n", message.getCommand());
-                        interpreter.setMessage(message);
-                        interpreter.setSocket(clientSocket);
-                        interpreter.setSelectionKey(selectionKey);
-                        interpreter.run();
-                        interpreter.setSocket(null);
-                        interpreter.setSelectionKey(null);
-                        System.out.println("Команда исполнена...");
-                        answer = interpreter.getAnswer();
-                    }
-                }
-            } catch (IOException e) {
-                selectionKey.cancel();
-                System.out.println(e.getMessage());
-            } catch (BufferUnderflowException e) {
-                System.out.println("Непредвниденный разрыв соединения");
-                selectionKey.cancel();
-            } */
         }
     }
 
@@ -328,73 +185,6 @@ public class ServerProcess {
             }
         }
     }
-
-
-    /*
-    public static void read(SelectionKey selectionKey) throws IOException{
-        clientSocket = null;
-        clientSocketChannel = null;
-        message = null;
-        answer = null;
-        //sharedBuffer.clear();
-
-        System.out.println("Reading channel...");
-        clientSocketChannel =
-                (SocketChannel) selectionKey.channel();
-        if (!clientSocketChannel.isConnected()) {
-            clientSocketChannel.close();
-        }
-        clientSocket = clientSocketChannel.socket();
-        //------------------------------------------------------------------------
-        int bytes = -1;
-        ByteBuffer new_buffer = ByteBuffer.allocate(BUFFER_SIZE);
-        bytes = clientSocketChannel.read(sharedBuffer);
-        sharedBuffer.flip();
-        new_buffer.put(sharedBuffer.duplicate());
-        sharedBuffer.clear();
-        new_buffer.flip();
-        int summaryLength = new_buffer.getInt();
-        if (bytes >= summaryLength+4){
-            try {
-                byte[] clientObjectData = new byte[summaryLength];
-                new_buffer.position(4);
-                new_buffer.get(clientObjectData, 0, summaryLength);
-                message = (MessageObject) Serializing.deserializeObject(clientObjectData);
-            } catch (ClassNotFoundException e){
-                System.out.println("Ошибка распаковки пакета...");
-                System.out.println(e.getMessage());
-            }
-            if (message != null) {
-                System.out.printf("Пользователь запросил выполнение команды %s... \n", message.getCommand());
-                interpreter.setMessage(message);
-                interpreter.setSocket(clientSocket);
-                interpreter.setSelectionKey(selectionKey);
-                interpreter.run();
-                interpreter.setSocket(null);
-                interpreter.setSelectionKey(null);
-                System.out.println("Команда исполнена...");
-                answer = interpreter.getAnswer();
-            }
-            if (answer != null) {
-                System.out.println("Отправляю ответ...");
-                //ByteBuffer answer_buffer = ByteBuffer.allocate(BUFFER_SIZE);
-
-                byte[] ans = Serializing.serializeObject(answer);
-
-                ByteBuffer answerDataBuffer = ByteBuffer.allocate(ans.length+4);
-                answerDataBuffer.putInt(ans.length);
-                answerDataBuffer.put(ans);
-                answerDataBuffer.flip();
-                clientSocketChannel.write(answerDataBuffer);
-
-            }
-        }
-        System.out.println("Next...");
-    }
-    */
-
-
-    //ExecutorService service = Executors.newCachedThreadPool();
 
     Executor deamonExecutor = (runnable) -> {
         Thread thread = new Thread(runnable);

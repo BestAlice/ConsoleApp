@@ -3,8 +3,6 @@ package collection_control;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-import client.ClientMessager;
-
 public class CheckInput  {
 	
 	public static Long checkId (String value, ArrayList<Long> usingId) throws BadValueException {
