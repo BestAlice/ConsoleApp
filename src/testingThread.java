@@ -13,16 +13,16 @@ public class testingThread
         Discipline discipline = new Discipline("read", new Scanner(System.in));
         LabWork lab = new LabWork().newLab();
         try {
-            coord.setX("2", "read");
-            coord.setY("6", "read");
-            discipline.setName("Name", "read");
-            discipline.setPracticeHours("333", "read");
-            lab.setName("makarena", "read");
+            coord.setX("26", "read");
+            coord.setY("0", "read");
+            discipline.setName("HELLO there", "read");
+            discipline.setPracticeHours("666", "read");
+            lab.setName("Vivaldi", "read");
             lab.setCoordinates(coord, "read");
             lab.setMinimalPoint("345", "read");
             lab.setPersonalQualitiesMaximum("324", "read");
             lab.setDifficulty("EASY", "read");
-            lab.setDiscipline(discipline, "read");
+            //lab.setDiscipline(discipline, "read");
         } catch (BadValueException e ) {
             System.out.println("BAD VALUE");
             System.out.println(e.getMessage());
@@ -30,11 +30,15 @@ public class testingThread
 
 
         DataBase BD = new DataBase();
-        //BD.createIterators();
         BD.insertLabWork(lab);
+        try{
+            lab.setName("Horizon", "read");
+            lab.setDiscipline(discipline, "read");
+            lab.setDifficulty(null, "read");
+        }catch (BadValueException e) {}
 
-        LabWork readed_laba = BD.selectLabWork(lab.getId());
-        readed_laba.show();
+        //BD.createIterators();
+        BD.updateLabWork(lab.getId(), lab);
 
     }
 }

@@ -1,9 +1,6 @@
 package server;
 
-import collection_control.BadValueException;
-import collection_control.CheckInput;
-import collection_control.MessageObject;
-import collection_control.ParseJson;
+import collection_control.*;
 import labwork_class.Difficulty;
 import labwork_class.LabWork;
 
@@ -19,6 +16,7 @@ public class CommandInterpreter {
     private  MessageObject answer = null;
     private static List<LabWork> LabList;
     private static String fileName;
+    private static DataBase BD;
     private LocalDateTime timeInit =  LocalDateTime.now();
     private static ArrayList<Long> usingId = LabWork.getUsingId();
     private Socket socket = null;
@@ -29,6 +27,8 @@ public class CommandInterpreter {
     }
 
     public void setUser(User user){this.user = user;}
+
+    public static void setBD(DataBase base) {BD = base;}
 
     public void setMessage(MessageObject message){
         this.message = message;
@@ -45,35 +45,75 @@ public class CommandInterpreter {
 
     public void run() {
         String command = message.getCommand();
-        /*
-        if (command == "sing_in") {
-            ArrayList<User> userList = ServerProcess.getUserList();
-        }
-        if (command == "sing_up") {
-
-        }
-
-         */
         switch (command) {
-            case "help": help(); break;
-            case "info": info(); break;
-            case "show": show(); break;
-            case "show_el": showEl(); break;
-            case "show_short": showShort(); break;
-            case "add": add(); break;
-            case "update": update(); break;
-            case "remove_by_id": remove_by_id(); break;
-            case "clear": clear(); break;
-            case "getUsingId": getUsingId(); break;
-            case "exit": exit(); break;
-            case "remove_first": remove_first(); break;
-            case "add_if_max": add_if_max(); break;
-            case "add_if_min": add_if_min(); break;
-            case "remove_any_by_personal_qualities_maximum": remove_any_by_personal_qualities_maximum(); break;
-            case "min_by_creation_date": min_by_creation_date(); break;
-            case "count_by_difficulty": count_by_difficulty(); break;
-            default: wrong_command(); ;
+            case "sing_in": sing_in(); break;
+            case "sing_up": sing_up(); break;
+            default: {
+                if (user.haveAccess(message.getLogin(), message.getPassword())) {
+                    switch (command) {
+                        case "help": help(); break;
+                        case "info": info(); break;
+                        case "show": show(); break;
+                        case "show_el": showEl(); break;
+                        case "show_short": showShort(); break;
+                        case "add": add(); break;
+                        case "update": update(); break;
+                        case "remove_by_id": remove_by_id(); break;
+                        case "clear": clear(); break;
+                        case "getUsingId": getUsingId(); break;
+                        case "exit": exit(); break;
+                        case "remove_first": remove_first(); break;
+                        case "add_if_max": add_if_max(); break;
+                        case "add_if_min": add_if_min(); break;
+                        case "remove_any_by_personal_qualities_maximum": remove_any_by_personal_qualities_maximum(); break;
+                        case "min_by_creation_date": min_by_creation_date(); break;
+                        case "count_by_difficulty": count_by_difficulty(); break;
+                        default: wrong_command();
+                    }
+                } else {
+                    answer.addMessage("Что за магия чисел? Пароль и логин не совпадают с даныыми сервера");
+                    answer.getReady();
+                }
+            }
         }
+    }
+
+    private void sing_up() {
+        user.setLogin(message.getLogin());
+        user.setPassword(message.getPassword());
+        if (BD.insertUser(user)) {
+            answer.addMessage("permission");
+            answer.addMessage("Успешная регестрация");
+            answer.setLogin(user.getLogin());
+            answer.setPassword(user.getPassword());
+            answer.getReady();
+        } else {
+            user.setId(null);
+            user.setLogin(null);
+            user.setPassword(null);
+            answer.addMessage("rejection");
+            answer.addMessage("Ошибка регестрации: пользователь уже существует");
+            answer.getReady();
+        }
+    }
+
+    private void sing_in() {
+        User BD_user = BD.selectUser(message.getLogin(), message.getPassword());
+        if (BD_user == null) {
+            answer.addMessage("rejection");
+            answer.addMessage("Ошибка входа: неверный логин или пароль");
+            answer.getReady();
+        } else {
+            answer.addMessage("permission");
+            answer.addMessage("Успешный вход");
+            answer.setLogin(BD_user.getLogin());
+            answer.setPassword(BD_user.getPassword());
+            user.setId(BD_user.getId());
+            user.setLogin(BD_user.getLogin());
+            user.setPassword(BD_user.getPassword());
+            answer.setReady();
+        }
+
     }
 
     private void wrong_command() {
@@ -143,13 +183,6 @@ public class CommandInterpreter {
                     .map(x -> String.format("%d: %s", x.getId(), x.getName()))
                     .forEach(x -> answer.addMessage(x));
         }
-        /*
-
-        for (LabWork lab: LabList) {
-            answer.addMessage(String.format("%d: %s", lab.getId(), lab.getName()));
-        }
-
-         */
     }
 
     public void showEl() {
@@ -166,6 +199,10 @@ public class CommandInterpreter {
     public void add(){
         LabWork newLab = message.getLaba().newLab();
         newLab.findWeight();
+
+        newLab.setUserId(user.getId());
+        BD.insertLabWork(newLab);
+
         LabList.add(newLab);
         LabWork.addId(newLab.getId());
         sort();
@@ -176,13 +213,20 @@ public class CommandInterpreter {
         try {
             Long id = message.getId();
             LabWork updateLab = this.findById(id);
-            updateLab.update(message.getLaba());
-            updateLab.findWeight();
-            sort();
+            if (user.haveAccessToLabWork(updateLab)) {
+                BD.updateLabWork(id, message.getLaba().newLab());
+                updateLab.update(message.getLaba());
+                updateLab.findWeight();
+                sort();
+                answer.addMessage("Работа успешно обновлена");
+            } else {
+                answer.addMessage("Эта работа пренадлежит другому пользовалелю");
+            }
         } catch (ArrayIndexOutOfBoundsException e) {
             answer.addMessage("Ошибка поиска");
         } catch (NullPointerException e) {
             answer.addMessage("Хреново ты проверяешь id");
+            e.printStackTrace();
         }
     }
 
@@ -193,19 +237,36 @@ public class CommandInterpreter {
                     .filter(x -> x.getId().equals(id))
                     .limit(1)
                     .findFirst().get();
-            remove(lab);
-            sort();
-            answer.addMessage("Удаление завершено");
+            if (user.haveAccessToLabWork(lab)) {
+                BD.deteteLabWork(lab.getId());
+                remove(lab);
+                sort();
+                answer.addMessage("Удаление завершено");
+            } else {
+                answer.addMessage("Эта работа пренадлежит другому пользовалелю");
+            }
+
         }catch (ArrayIndexOutOfBoundsException e) {
             answer.addMessage("Не введено id");
         }
     }
 
     public void clear(){
-        while (!LabList.isEmpty()) {
-            remove(LabList.get(0));
+        boolean changes = true;
+        while (changes){
+            changes = false;
+            for (LabWork lab: LabList) {
+                if (user.haveAccessToLabWork(lab)) {
+                    changes = true;
+                    BD.deteteLabWork(lab.getId());
+                    remove(LabList.get(0));
+                    break;
+                }
+            }
         }
-        answer.addMessage("Отчистка завершена");
+
+
+        answer.addMessage("Удаление пренадлежащих пользователю работ закончено");
     }
 
     public boolean save() {
@@ -228,9 +289,15 @@ public class CommandInterpreter {
 
     public void remove_first(){
         try{
-            LabWork.removeId(LabList.get(0).getId());
-            LabList.remove(0);
-            answer.addMessage("Удаление завершено");
+            Long id = LabList.get(0).getId();
+            if (user.haveAccessToLabWork(LabList.get(0))) {
+                BD.deteteLabWork(id);
+                LabWork.removeId(id);
+                LabList.remove(0);
+                answer.addMessage("Удаление завершено");
+            } else  {
+                answer.addMessage("Эта работа пренадлежит другому пользовалелю");
+            }
         } catch (NoSuchElementException e) {
             answer.addMessage("Коллекция пуста");
         }
@@ -246,6 +313,10 @@ public class CommandInterpreter {
         newLab.findWeight();
         if (newLab.compareTo(maxElement) > 0) {
             newLab.newLab();
+
+            newLab.setUserId(user.getId());
+            BD.insertLabWork(newLab);
+
             LabList.add(newLab);
             answer.addMessage("Новый элемент добавлен");
         } else {
@@ -262,6 +333,10 @@ public class CommandInterpreter {
         newLab.findWeight();
         if (newLab.compareTo(minElement) < 0) {
             newLab.newLab();
+
+            newLab.setUserId(user.getId());
+            BD.insertLabWork(newLab);
+
             LabList.add(newLab);
             answer.addMessage("Новый элемент добавлен");
         } else {
@@ -275,8 +350,14 @@ public class CommandInterpreter {
 
             LabWork lab = LabList.stream().filter(x -> x.getPersonalQualitiesMaximum().equals(var)).limit(1).findFirst().get();
             if (lab != null){
-                answer.addMessage(String.format("Элемент %d Был удалён", lab.getId()));
-                remove(lab);
+
+                if (user.haveAccessToLabWork(lab)) {
+                    BD.deteteLabWork(lab.getId());
+                    answer.addMessage(String.format("Элемент %d Был удалён", lab.getId()));
+                    remove(lab);
+                } else  {
+                    answer.addMessage("Эта работа пренадлежит другому пользовалелю");
+                }
             } else {
                 answer.addMessage("Подходящих элементов не было найдено");
             }
@@ -364,5 +445,6 @@ public class CommandInterpreter {
             return time1 - time2;
         }
     };
+
 
 }

@@ -51,10 +51,19 @@ public class ServerProcess {
         PORT = port;
 
         try {
+            DataBase BD = new DataBase();
+            LabList = Collections.synchronizedList(BD.selectLabList());
+            CommandInterpreter.setBD(BD);
+            for (LabWork lab: LabList) {
+                LabWork.addId(lab.getId());
+            }
+            /*
             System.out.println("Читаю Json...");
             LabList = Collections.synchronizedList(ParseJson.parseFromJson(fileName));
             System.out.println("Чтение прошло успешно");
             CommandInterpreter.setFileName(fileName);
+
+             */
         } catch (NullPointerException e){
             System.out.println("Файл не явялетя Json-ом");
             exit(1);
@@ -101,18 +110,23 @@ public class ServerProcess {
             while (!Thread.currentThread().isInterrupted()){
                 String command = scan.nextLine();
                 if (command.equals("exit")) {
-                    CommandInterpreter interpreter = new CommandInterpreter();
-                    if (interpreter.save()) {
-                        accepterPool.shutdown();
-                        readerPool.shutdown();
-                        commandExecutorPool.shutdown();
-                        writerPool.shutdown();
-                        try {
-                            serverSocket.close();
-                        } catch (IOException e) {
-                            System.out.println("Сокет сервера уже закрыт");
+                    accepterPool.shutdown();
+                    readerPool.shutdown();
+                    commandExecutorPool.shutdown();
+                    writerPool.shutdown();
+                    for (User user: getUserList()) {
+                        try{
+                            user.getSocket().close();
+                        }catch (IOException e){
+                            System.out.println("Сокет пользователя "+ user.toString() + " уже закрыт");
                         }
                     }
+                    try {
+                        serverSocket.close();
+                    } catch (IOException e) {
+                        System.out.println("Сокет сервера уже закрыт");
+                    }
+
                 }
             }
         }

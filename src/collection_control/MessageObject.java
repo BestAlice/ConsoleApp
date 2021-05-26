@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class MessageObject implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String name;
+    private String login;
     private String password;
 
     private String command;
@@ -20,6 +20,7 @@ public class MessageObject implements Serializable {
     private transient boolean ready = false;
     private ArrayList<String> messages = new ArrayList<>();
     private ArrayList<Long> usingId;
+
 
     public String getCommand(){
         return command;
@@ -92,11 +93,11 @@ public class MessageObject implements Serializable {
         this.password = password;
     }
 
-    public String getName() {
-        return name;
+    public String getLogin() {
+        return login;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLogin(String login) {
+        this.login = login;
     }
 }

@@ -6,13 +6,19 @@ import collection_control.MessageObject;
 import labwork_class.Difficulty;
 import labwork_class.LabWork;
 
+import java.math.BigInteger;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class ClientMessageGeneration {
+    private static String login;
+    private static String password;
     private String[] argumets;
     private CheckInput checker = new CheckInput();
     private LocalDateTime timeInit =  LocalDateTime.now();
@@ -27,17 +33,22 @@ public class ClientMessageGeneration {
 
     public void newMessage(){
         message = new MessageObject();
+        message.setLogin(login);
+        message.setPassword(password);
         argumets = null;
     }
 
     public void setArgumets(String[] argumets, ArrayList<Long> usingId) {
         this.argumets = argumets;
         this.usingId = usingId;
-        for (Long id: usingId) {
-            if (!LabWork.getUsingId().contains(id)){
-                LabWork.addId(id);
+        if (usingId != null){
+            for (Long id: usingId) {
+                if (!LabWork.getUsingId().contains(id)){
+                    LabWork.addId(id);
+                }
             }
         }
+
     }
 
     public void getUsingId () {
@@ -186,5 +197,68 @@ public class ClientMessageGeneration {
 
     public MessageObject getMessage() {
         return message;
+    }
+
+    public void sing_in() {
+        System.out.println("Введите логин:");
+        System.out.print("> ");
+        String login = scan.nextLine().replaceAll("[^\\da-zA-Zа-яёА-ЯЁ ]", "").replaceAll(" ", "_");
+        System.out.println("Введите пароль:");
+        System.out.print("> ");
+        String password = scan.nextLine().replaceAll("[^\\da-zA-Zа-яёА-ЯЁ ]", "").replaceAll(" ", "_");
+        password = md5Custom(password);
+        message.setCommand("sing_in");
+        message.setLogin(login);
+        message.setPassword(password);
+        message.setReady();
+    }
+
+    public void sing_up() {
+        System.out.println("Введите новый логин:");
+        System.out.print("> ");
+        String login = scan.nextLine().replaceAll("[^\\da-zA-Zа-яёА-ЯЁ ]", "").trim().replaceAll(" ", "_");
+        System.out.println("Введите новый пароль:");
+        System.out.print("> ");
+        String password = scan.nextLine().replaceAll("[^\\da-zA-Zа-яёА-ЯЁ ]", "").replaceAll(" ", "_");
+        password = md5Custom(password);
+        message.setCommand("sing_up");
+        message.setLogin(login);
+        message.setPassword(password);
+        message.setReady();
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public static String md5Custom(String st) {
+        MessageDigest messageDigest = null;
+        byte[] digest = new byte[0];
+
+        try {
+            messageDigest = MessageDigest.getInstance("MD5");
+            messageDigest.reset();
+            st = "soul"+st;
+            messageDigest.update(st.getBytes());
+            digest = messageDigest.digest();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        BigInteger bigInt = new BigInteger(1, digest);
+        String md5Hex = bigInt.toString(16);
+        return md5Hex;
     }
 }

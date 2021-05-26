@@ -34,17 +34,12 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private Long personalQualitiesMaximum; //Поле может быть null, Значение поля должно быть больше 0
     private Difficulty difficulty = null; //Поле может быть null
     private Discipline discipline = null; //Поле может быть null
+	private Long userId = null;
 
 
 	private transient int weight = 0;
 
 	public LabWork newLab() {
-		Long new_id;
-		do {
-			new_id = index.pollFirst();
-		} while (usingId.contains(new_id));
-		id = new_id;
-		addId(id);
 		creationDate =LocalDateTime.now();
 		return this;
 	}
@@ -165,7 +160,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     	{e.getMessage();}
     }
 
-    public void setId(Long id) {this.id = id;}
+    public void setId(Long id) {this.id = id; }
 
 	public Long getId() {
 		return id;
@@ -236,6 +231,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 		} else {
 			discipline.show();
 		}
+		System.out.println("userId : " + userId);
 	}
 
 	public ArrayList<String> getFullInfo() {
@@ -257,12 +253,21 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 				info.add(line);
 			}
 		}
+		info.add("userId : " + userId);
 		info.add("");
 		return info;
 	}
 
 	public Discipline getDiscipline() {
     	return discipline;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 }
 

@@ -55,7 +55,7 @@ public class Discipline implements  Serializable {
 	public void show(){
 
     	System.out.println("discipline :");
-    	System.out.println("\tdiscipline name : " + name);
+    	System.out.println("\tname : " + name);
     	System.out.println("\tpracticeHours : " + practiceHours);
 
     }

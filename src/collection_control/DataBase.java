@@ -1,15 +1,16 @@
 package collection_control;
 
 import labwork_class.Coordinates;
-import labwork_class.Difficulty;
 import labwork_class.Discipline;
 import labwork_class.LabWork;
+import server.User;
 
-import javax.xml.crypto.Data;
+import java.io.IOException;
+import java.net.Socket;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.sql.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 public class DataBase {
@@ -19,23 +20,29 @@ public class DataBase {
 
     public DataBase() {
         try {
+            System.out.println("Подключение к Базе Данных");
             Class.forName("org.postgresql.Driver");
             connection = DriverManager
-                    .getConnection("jdbc:postgresql://localhost:5432/LabWorks","postgres", "1369245780qwe");
+                    .getConnection("jdbc:postgresql://localhost:8085/labworks","postgres", "1369245780qwe");
             connection.setAutoCommit(false);
-            System.out.println("-- Opened database successfully");
-            /*
-            stmt = connection.createStatement();
-            sql = "create sequence id_iterator start with 1 increment by 1;";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            connection.commit();
-             */
+            System.out.println("Подключение прошло успешно");
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println(e.getClass().getName()+": "+e.getMessage());
             System.exit(0);
         }
+    }
+
+    public List<LabWork> selectLabList() {
+        System.out.println("Запрашиваю список LabWork");
+        List<LabWork> LabList = new LinkedList<>();
+
+        List<Long> id_List = this.selectAllLabWorkId();
+        for (Long id : id_List) {
+            LabList.add(this.selectLabWork(id));
+        }
+        System.out.println("Создание cписка LabWork прошло успешно");
+        return LabList;
     }
 
     public void insertLabWork(LabWork laba){
@@ -52,18 +59,15 @@ public class DataBase {
             }
 
             if (laba.getDifficulty() != null) {
-                dif = String.format("'%s'", laba.getDifficulty());
+                dif = String.format("\'%s\'", laba.getDifficulty());
             } else {
                 dif = null;
             }
 
             Long index = selectIndex("lab_id_iterator");
             laba.setId(index);
-            if (dif != null) {
-                sql = "INSERT INTO labworks VALUES (%d, '%s', %d, '%s', %d, %d, '%s', %d)";
-            } else {
-                sql = "INSERT INTO labworks VALUES (%d, '%s', %d, '%s', %d, %d, %s, %d)";
-            }
+
+            sql = "INSERT INTO labworks VALUES (%d, '%s', %d, '%s', %d, %d, %s, %d, %d)";
 
             sql = String.format(sql,
                     laba.getId(),
@@ -72,18 +76,18 @@ public class DataBase {
                     java.sql.Timestamp.valueOf(laba.getCreationDate()),
                     laba.getMinimalPoint(),
                     laba.getPersonalQualitiesMaximum(),
-                    laba.getDifficulty(),
-                    dis
+                    dif,
+                    dis,
+                    laba.getUserId()
                     );
             stmt = connection.createStatement();
             stmt.executeUpdate(sql);
             stmt.close();
             connection.commit();
         } catch (SQLException e) {
-            System.out.println("БД сломалась на Лабе");
+            System.out.println("БД сломалась на вставке Лабораторной");
             e.printStackTrace();
             System.err.println(e.getClass().getName()+": "+e.getMessage());
-            System.exit(0);
         }
     }
 
@@ -116,7 +120,7 @@ public class DataBase {
                 laba = new LabWork();
                 laba.setId(id);
                 laba.setName(name, "read");
-                Coordinates coordinates = this.selectCoodinates(coordinates_id);
+                Coordinates coordinates = this.selectCoordinates(coordinates_id);
                 laba.setCoordinates(coordinates, "read");
                 laba.setCreationDate(creationDate, "read");
                 laba.setMinimalPoint(String.valueOf(minimalPoint), "read");
@@ -124,21 +128,101 @@ public class DataBase {
                 laba.setDifficulty(difficulty, "read");
                 Discipline discipline = this.selectDiscipline(discipline_id);
                 laba.setDiscipline(discipline, "read");
+                laba.setUserId(rs.getLong("user_id"));
 
 
             }
             stmt.close();
             connection.commit();
         } catch (SQLException e) {
-            System.out.println("БД сломалась на Лабе");
+            System.out.println("БД сломалась на получении Лабораторной");
             e.printStackTrace();
             System.err.println(e.getClass().getName()+": "+e.getMessage());
-            System.exit(0);
         } catch (BadValueException e) {
             System.out.println("Плохие значения в БД");
             System.out.println(e.getMessage());
         }
         return laba;
+    }
+
+    public void deteteLabWork (Long id) {
+        try {
+            LabWork laba = selectLabWork(id);
+            deleteCoordinates(laba.getCoordinates().getId());
+            if (laba.getDiscipline() != null){
+                deleteDiscipline(laba.getDiscipline().getId());
+            }
+            sql = "DELETE FROM labworks WHERE id = %d;";
+            sql = String.format(sql,
+                    id
+            );
+            stmt = connection.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+            connection.commit();
+        } catch (SQLException e) {
+            System.out.println("БД сломалась на удалении лабораторной");
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+        }
+    }
+
+    public void updateLabWork (Long id, LabWork new_laba) {
+        try {
+            LabWork old_laba = selectLabWork(id);
+            String dif;
+            updateCoordinates(old_laba.getCoordinates().getId(), new_laba.getCoordinates());
+            boolean oldHaveDiscipline = (old_laba.getDiscipline()!=null);
+            boolean newHaveDiscipline = (new_laba.getDiscipline()!=null);
+            Long discipline_id = null;
+            if (oldHaveDiscipline & newHaveDiscipline) {
+                updateDiscipline(old_laba.getDiscipline().getId(), new_laba.getDiscipline());
+                discipline_id = old_laba.getDiscipline().getId();
+            } else if (oldHaveDiscipline & !newHaveDiscipline) {
+                deleteDiscipline(old_laba.getDiscipline().getId());
+                discipline_id = null;
+            } else if (!oldHaveDiscipline & newHaveDiscipline) {
+                insertDiscipline(new_laba.getDiscipline());
+                discipline_id = new_laba.getDiscipline().getId();
+            } else if (!oldHaveDiscipline & !newHaveDiscipline) {
+                discipline_id = null;
+            }
+            if (new_laba.getDifficulty() != null) {
+                dif = String.format("\'%s\'", new_laba.getDifficulty());
+            } else {
+                dif = null;
+            }
+
+            sql = "update labworks set " +
+                    "name = '%s', " +
+                    "coordinates_id = %d,  " +
+                    "creationdate = '%s', " +
+                    "minimalpoint = %d, " +
+                    "personalqualitiesmaximum = %d, " +
+                    "difficulty = %s, " +
+                    "discipline_id = %d, " +
+                    "user_id = %d " +
+                    "where id = %d;";
+            sql = String.format(sql,
+                    new_laba.getName(),
+                    old_laba.getCoordinates().getId(),
+                    java.sql.Timestamp.valueOf(new_laba.getCreationDate()),
+                    new_laba.getMinimalPoint(),
+                    new_laba.getPersonalQualitiesMaximum(),
+                    dif,
+                    discipline_id,
+                    old_laba.getUserId(),
+                    id
+            );
+            stmt = connection.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+            connection.commit();
+        } catch (SQLException e) {
+            System.out.println("БД сломалась на обновлении Лабораторной");
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+        }
     }
 
     public void insertCoordinates(Coordinates coordinates) {
@@ -157,14 +241,13 @@ public class DataBase {
             stmt.close();
             connection.commit();
         } catch (SQLException e) {
-            System.out.println("БД сломалась на координатах");
+            System.out.println("БД сломалась на вставке координат");
             e.printStackTrace();
             System.err.println(e.getClass().getName()+": "+e.getMessage());
-            System.exit(0);
         }
     }
 
-    public Coordinates selectCoodinates(Long id) {
+    public Coordinates selectCoordinates(Long id) {
         Coordinates coord = null;
         Long x = null;
         Long y = null;
@@ -182,19 +265,56 @@ public class DataBase {
             connection.commit();
             if (y != null){
                 coord = new Coordinates("read", new Scanner(System.in));
+                coord.setId(id);
                 coord.setX(String.valueOf(x), "read");
                 coord.setY(String.valueOf(y), "read");
             }
         } catch (SQLException e) {
-            System.out.println("БД сломалась на координатах");
+            System.out.println("БД сломалась на получении координат");
             e.printStackTrace();
             System.err.println(e.getClass().getName()+": "+e.getMessage());
-            System.exit(0);
         } catch (BadValueException e) {
             System.out.println("КАК, БЛЯТЬ, ТЫ СМОГ ЗАПИХНУТЬ В КОЛЛЕКЦИЮ ЭТУ ПЕРЕМЕННУЮ?");
         }
 
         return coord;
+    }
+
+    public void deleteCoordinates(Long id) {
+        try {
+            sql = "DELETE FROM coordinates WHERE id = %d;";
+            sql = String.format(sql,
+                    id
+            );
+            stmt = connection.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+            connection.commit();
+        } catch (SQLException e) {
+            System.out.println("БД сломалась на удалении координат");
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+        }
+
+    }
+
+    public void updateCoordinates(Long id, Coordinates new_coordinates) {
+        try {
+            sql = "update coordinates set x = %d, y = %d where id = %d;";
+            sql = String.format(sql,
+                    new_coordinates.getX(),
+                    new_coordinates.getY(),
+                    id
+            );
+            stmt = connection.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+            connection.commit();
+        } catch (SQLException e) {
+            System.out.println("БД сломалась на обновлении координат");
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+        }
     }
 
     public void insertDiscipline(Discipline discipline) {
@@ -213,10 +333,9 @@ public class DataBase {
             stmt.close();
             connection.commit();
         } catch (SQLException e) {
-            System.out.println("БД сломалась на дисциплине");
+            System.out.println("БД сломалась на вставке дисциплины");
             e.printStackTrace();
             System.err.println(e.getClass().getName()+": "+e.getMessage());
-            System.exit(0);
         }
     }
 
@@ -238,11 +357,12 @@ public class DataBase {
             connection.commit();
             if (practiceHours != null){
                 discipline = new Discipline("read", new Scanner(System.in));
+                discipline.setId(id);
                 discipline.setName(name, "read");
                 discipline.setPracticeHours(String.valueOf(practiceHours), "read");
             }
         } catch (SQLException e) {
-            System.out.println("БД сломалась на дисциплине");
+            System.out.println("БД сломалась на получении дисциплины");
             e.printStackTrace();
             System.err.println(e.getClass().getName()+": "+e.getMessage());
             System.exit(0);
@@ -252,46 +372,148 @@ public class DataBase {
         return discipline;
     }
 
-    public void TestDatabase() {
+    public void deleteDiscipline(Long id) {
         try {
-
-            sql = "INSERT INTO coordinates(id, x, y) VALUES (1, 1, 1)";
-            stmt = connection.prepareStatement(sql);
-            //sql = "INSERT INTO labworks (id,name,coordinates_id,creationdate,minimalpoint,personalqualitiesmaximum,difficulty,discipline_id) " +
-            //        "VALUES (1, 'Paul', 1, TO_TIMESTAMP('2014-07-02 06:14:00.742000000', 'YYYY-MM-DD HH24:MI:SS.FF'), 4, 'EASY', 3);";
-            stmt.executeUpdate(sql);
-
-            stmt.close();
-            connection.commit();
-            System.out.println("-- Records created successfully");
-            /*
+            sql = "DELETE FROM discipline WHERE id = %d;";
+            sql = String.format(sql,
+                    id
+            );
             stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery( "SELECT * FROM COMPANY;" );
-            while ( rs.next() ) {
-                int id = rs.getInt("id");
-                String  name = rs.getString("name");
-                int age  = rs.getInt("age");
-                String  address = rs.getString("address");
-                float salary = rs.getFloat("salary");
-                System.out.println(String.format("ID=%s NAME=%s AGE=%s ADDRESS=%s SALARY=%s",id,name,age,address,salary));
-            }
-            rs.close();
+            stmt.executeUpdate(sql);
             stmt.close();
             connection.commit();
-            System.out.println("-- Operation SELECT done successfully");
-
-             */
-
-
         } catch (SQLException e) {
+            System.out.println("БД сломалась на удалении дисциплины");
             e.printStackTrace();
             System.err.println(e.getClass().getName()+": "+e.getMessage());
-            System.exit(0);
         }
-        System.out.println("-- All Operations done successfully");
     }
 
+    public void updateDiscipline(Long id, Discipline new_discipline) {
+        try {
+            sql = "update discipline set name = '%s', practiceHours = %d where id = %d;";
+            sql = String.format(sql,
+                    new_discipline.getName(),
+                    new_discipline.getPracticeHours(),
+                    id
+            );
+            stmt = connection.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+            connection.commit();
+        } catch (SQLException e) {
+            System.out.println("БД сломалась на обновлении дисциплины");
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+        }
+    }
 
+    public boolean insertUser(User user){
+        try{
+            User check_user = selectUser(user.getLogin(), user.getPassword());
+            if (check_user != null) {
+                return false;
+            }
+            Long index = selectIndex("user_id_iterator");
+            user.setId(index);
+
+            sql = "INSERT INTO users(id, login, password) VALUES (%d, '%s', '%s')";
+            sql = String.format(sql,
+                    user.getId(),
+                    user.getLogin(),
+                    user.getPassword()
+            );
+            stmt = connection.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+            connection.commit();
+        } catch (SQLException e) {
+            System.out.println("БД сломалась на добавлении пользователя");
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+        }
+        return true;
+    }
+
+    public User selectUser(String login, String password) {
+        User user = null;
+        try{
+            sql = "select * FROM users WHERE login = '%s' and password = '%s' ;";
+            sql = String.format(sql,
+                    login,
+                    password);
+            stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                user = new User();
+                user.setId(rs.getLong("id"));
+                user.setLogin(rs.getString("login"));
+                user.setPassword(rs.getString("password"));
+                stmt.close();
+                connection.commit();
+                return user;
+            } else {
+                stmt.close();
+                connection.commit();
+                return null;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("БД сломалась на получении пользователя");
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+        }
+        return user;
+    }
+
+    public User selectUser(Long id) {
+        User user = null;
+        try{
+            sql = "select * FROM users WHERE id = %d ;";
+            sql = String.format(sql,
+                    id);
+            stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                user = new User();
+                user.setId(rs.getLong("id"));
+                user.setLogin(rs.getString("login"));
+                user.setPassword(rs.getString("password"));
+                stmt.close();
+                connection.commit();
+                return user;
+            } else {
+                stmt.close();
+                connection.commit();
+                return null;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("БД сломалась на получении пользователя");
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+        }
+        return user;
+    }
+
+    //public Long selectMaseter (Long id ) {}
+
+    public List<Long> selectAllLabWorkId() {
+        List<Long> id_List = new LinkedList<>();
+        try{
+            sql = "select id from labworks;";
+            stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                id_List.add(rs.getLong("id"));
+            }
+        } catch (SQLException e) {
+            System.out.println("БД сломалась на координатах");
+            e.printStackTrace();
+            System.err.println(e.getClass().getName()+": "+e.getMessage());
+        }
+        return id_List;
+    }
 
     public Long selectIndex(String iterator){
         Long index = null;
@@ -310,7 +532,6 @@ public class DataBase {
             System.out.println("БД сломалась на получении индекса");
             e.printStackTrace();
             System.err.println(e.getClass().getName()+": "+e.getMessage());
-            System.exit(0);
         }
         return index;
     }

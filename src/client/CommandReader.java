@@ -1,5 +1,7 @@
 package client;
 
+import collection_control.BadValueException;
+import collection_control.CheckInput;
 import collection_control.MessageObject;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,21 +14,29 @@ import java.util.Scanner;
 
 public class CommandReader {
     private Socket socket;
-    private SocketChannel channel;
     private ClientMessager messager;
     private ClientMessageGeneration messageGeneration;
     private  MessageObject message;
     private Scanner scan;
     private MessageObject answer = null;
-    private boolean readScript = false;
+    private static boolean readScript = false;
     private boolean reading = true;
-    private ArrayList<Long> usingId;
+    private static ArrayList<Long> usingId =null;
+    private static boolean authorized = false;
 
     public CommandReader(Socket socket, Scanner scan) {
         this.socket = socket;
         this.scan = scan;
         this.messageGeneration = new ClientMessageGeneration(scan);
         this.messager = new ClientMessager(socket);
+    }
+
+    public static boolean isAuthorized() {
+        return authorized;
+    }
+
+    public static void setAuthorized(boolean authorized) {
+        CommandReader.authorized = authorized;
     }
 
     public boolean isReading(){
@@ -89,6 +99,48 @@ public class CommandReader {
                 answer = messager.getAnswer();
                 for (String message : answer.getMessages()) {
                     System.out.println(message.trim() );
+                }
+                return true;
+            }
+        } else {
+            System.out.println("Сообщение сформированно некорректно");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean Authorization(String command) throws IOException {
+        try{
+            command = CheckInput.checkString(command.trim());
+        } catch (BadValueException e) {
+            System.out.println("Проблемка ввода");
+            return false;
+        }
+
+
+        if (command==null) {return false;}
+        String[] arrLine = command.split(" ");
+        String mainCommand = arrLine[0].trim();
+
+        messageGeneration.newMessage();
+        messageGeneration.setArgumets(arrLine.clone(), usingId);
+        switch (mainCommand){
+            case "sing_in" : messageGeneration.sing_in();break;
+            case "sing_up" : messageGeneration.sing_up(); break;
+            default: System.out.println("Введена не верная команда. Попробуйте sing_in или sing_up");
+        }
+        message = messageGeneration.getMessage();
+        if (message.getReady()) {
+            if (messager.sendMessage(messageGeneration.getMessage())) {
+                answer = messager.getAnswer();
+                String line = answer.getMessages().get(0);
+                switch (line) {
+                    case "permission": {setAuthorized(true);
+                        messageGeneration.setLogin(answer.getLogin());
+                        messageGeneration.setPassword(answer.getPassword());
+                        System.out.println(answer.getMessages().get(1));break;}
+                    case "rejection" : System.out.println(answer.getMessages().get(1)); break;
+                    default: System.out.println("Ошибка в полученном сообщении");
                 }
                 return true;
             }

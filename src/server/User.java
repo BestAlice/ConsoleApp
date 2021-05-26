@@ -1,30 +1,20 @@
 package server;
 
 import collection_control.MessageObject;
+import labwork_class.LabWork;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
-import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 
 public class User {
-    private static LinkedList<Long> index = new LinkedList<>();
     private static ArrayList<Long> allUsersId = new ArrayList<>();
     private CommandInterpreter interpreter;
 
-    static  {
-        for ( Long i = 0L; i < 1000L; i++ ) {
-            index.add(i + 1);
-        }
-        Collections.shuffle(index);
-    }
-
 
     private Long id;
-    private String name;
+    private String login;
     private String password;
     private boolean running = true;
     private MessageObject message;
@@ -33,13 +23,23 @@ public class User {
     private ObjectInputStream in;
     private ObjectOutputStream out;
 
+    public User () {
+        interpreter = new CommandInterpreter();
+        interpreter.setUser(this);
+    }
+
     public User(Socket socket) throws IOException{
-        id = index.getFirst();
         this.socket = socket;
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
         interpreter = new CommandInterpreter();
         interpreter.setUser(this);
+    }
+
+    public void setId(Long id) {this.id = id;}
+
+    public Long getId() {
+        return id;
     }
 
     public void readMessage() throws IOException{
@@ -74,18 +74,26 @@ public class User {
 
 
     public void setAccess(String name, String password){
-        this.name = name;
+        this.login = name;
         this.password = password;
     }
 
-    public boolean haveAccess(String name, String password){
-        if (this.name == null || this.password == null) {
+    public boolean haveAccess(String login, String password){
+        if (this.login == null || this.password == null) {
             return false;
         }
-        if (this.name == name && this.password == password) {
+        if (this.login.equals(login) && this.password.equals(password)) {
             return  true;
         } else {
             return  false;
+        }
+    }
+
+    public boolean haveAccessToLabWork (LabWork laba) {
+        if (this.id.equals(laba.getUserId())) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -118,6 +126,17 @@ public class User {
     public void setRunning(boolean running) {this.running = running;}
 
     public String toString(){
-        return  String.format("%d - %s", id, name);
+        return  String.format("%d - %s", id, login);
     }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getLogin() {return login;}
+    public String getPassword() {return  password;}
 }
