@@ -1,10 +1,32 @@
 import appFiles.Application;
 
+
+
+
+
 public class testingThread {
+
+
+
     public static void main(String[] args) throws InterruptedException {
 
         Application app = new Application();
+
         app.viewMainPanel();
+
+        //app.info_panel.viewValueElements();
+
+        //app.info_panel.viewValueElements();
+
+
+        //app.table_panel.update();
+        //app.visual_panel.update();
+        //app.command_panel.update();
+        //app.setting_panel.viewLanguages();
+        //app.repaint();
+
+
+
         /*
 
 

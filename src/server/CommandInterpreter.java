@@ -31,6 +31,7 @@ public class CommandInterpreter {
     public void setMessage(MessageObject message){
         this.message = message;
         this.answer = new MessageObject();
+        answer.setCommand("message");
     }
 
     public void setSocket(Socket socket){

@@ -42,7 +42,7 @@ public class CommandReader {
         return reading;
     }
 
-    public boolean readCommand(String command) throws IOException {
+    public boolean writeCommand(String command) throws IOException {
 
         command = command.trim();
 
@@ -106,6 +106,20 @@ public class CommandReader {
             return false;
         }
         return true;
+    }
+
+    public boolean readAnswer() throws IOException {
+        answer = messager.getAnswer();
+        switch (answer.getCommand()) {
+            case "message" :
+                for (String message : answer.getMessages()) {
+                    System.out.println(message.trim() );
+                }
+                return true;
+            case "autorization" : ;
+            default: System.out.println("Не могу оперделить тип ответа"); return false;
+
+        }
     }
 
     public boolean Authorization(String command) throws IOException {
@@ -175,7 +189,7 @@ public class CommandReader {
                 Thread.sleep(1000);
                 String new_command = scriptScan.nextLine();
                 System.out.println(new_command);
-                commandReader.readCommand(new_command);
+                commandReader.writeCommand(new_command);
             } catch (NoSuchElementException e) {
                 System.out.println("Чтение скрипта завершено");
                 break;

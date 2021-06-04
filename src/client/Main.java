@@ -105,6 +105,48 @@ public class Main {
         }
     }
 
+    public static class WriteThread implements Runnable{
+
+        @Override
+        public void run() {
+            while (commandReader.isReading()){
+                try {
+                    if (commandReader.isAuthorized()){
+                        String command = "";
+                        System.out.print("> ");
+                        command = scan.nextLine();
+                        commandReader.writeCommand(command);
+                    } else {
+                        System.out.println("Необходимо авторизоваться(sing_in) или зарегестрироваться(sing_up)");
+                        String command = "";
+                        System.out.print("> ");
+                        command = scan.nextLine();
+                        commandReader.Authorization(command);
+                    }
+                } catch (IOException e) {
+                    break;
+                }
+
+            }
+        }
+    }
+
+    public static class ReadThread implements Runnable{
+
+        @Override
+        public void run() {
+            while (commandReader.isReading()){
+                try {
+                    commandReader.readAnswer();
+                } catch (IOException e) {
+                    break;
+                }
+            }
+        }
+    }
+
+
+
     public static class Run implements Runnable{
         @Override
         public void run() {
@@ -114,7 +156,7 @@ public class Main {
                         String command = "";
                         System.out.print("> ");
                         command = scan.nextLine();
-                        commandReader.readCommand(command);
+                        commandReader.writeCommand(command);
                     }
                 } catch (IOException e) {
                     break;
