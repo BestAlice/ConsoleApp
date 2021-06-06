@@ -1,5 +1,7 @@
 package collection_control;
 
+import appFiles.CommandPanel;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
@@ -62,7 +64,7 @@ public class CheckInput  {
 		try {
 			final_line = new String(newLine.getBytes(), "Cp866"); //"Cp866""UTF-16"
 		} catch (UnsupportedEncodingException e) {
-			System.out.println("Кодировка - хрень");
+			CommandPanel.addEntry("Кодировка - хрень");
 		}
 
  		return newLine.trim();

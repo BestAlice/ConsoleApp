@@ -1,33 +1,43 @@
 package client;
 
+import appFiles.Application;
+import appFiles.CommandPanel;
+import appFiles.LoginPanel;
 import collection_control.BadValueException;
 import collection_control.CheckInput;
 import collection_control.MessageObject;
+import labwork_class.LabWork;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class CommandReader {
     private Socket socket;
-    private ClientMessager messager;
-    private ClientMessageGeneration messageGeneration;
-    private  MessageObject message;
+    public ClientMessager messager;
+    public ClientMessageGeneration messageGeneration;
+    private MessageObject message;
     private Scanner scan;
     private MessageObject answer = null;
     private static boolean readScript = false;
     private boolean reading = true;
     private static ArrayList<Long> usingId =null;
     private static boolean authorized = false;
+    private static ArrayList<HashMap> tableList= new ArrayList<>();
+    private Application app;
+    private LabWork labwork = null;
 
     public CommandReader(Socket socket, Scanner scan) {
         this.socket = socket;
         this.scan = scan;
         this.messageGeneration = new ClientMessageGeneration(scan);
         this.messager = new ClientMessager(socket);
+        this.messager.setReading(reading);
     }
 
     public static boolean isAuthorized() {
@@ -42,7 +52,7 @@ public class CommandReader {
         return reading;
     }
 
-    public boolean writeCommand(String command) throws IOException {
+    public boolean writeCommand(String command) throws IOException, InterruptedException {
 
         command = command.trim();
 
@@ -61,9 +71,9 @@ public class CommandReader {
             case "show_el":
                 messageGeneration.showEl(); break;
             case "show_short": messageGeneration.showShort(); break;
-            case "add": messageGeneration.add(); break;
+            case "add": messageGeneration.add(labwork); break;
             case "update":
-                messageGeneration.update(); break;
+                messageGeneration.update(labwork); break;
             case "remove_by_id":
                 messageGeneration.remove_by_id(); break;
             case "clear": messageGeneration.clear(); break;
@@ -72,6 +82,7 @@ public class CommandReader {
                     executeScript(arrLine[1].trim());
                     return true;
                 } catch (ArrayIndexOutOfBoundsException e) {
+                    CommandPanel.addEntry("Не введено имя читаемого файла");
                     System.out.println("Не введено имя читаемого файла");
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
@@ -82,6 +93,7 @@ public class CommandReader {
                     messager.sendMessage(messageGeneration.getMessage());
                 }catch (NullPointerException e) {}
                 reading = false;
+                messager.setReading(reading);
                 return true;
             case "remove_first": messageGeneration.remove_first(); break;
             case "add_if_max": messageGeneration.add_if_max(); break;
@@ -90,18 +102,15 @@ public class CommandReader {
                 messageGeneration.remove_any_by_personal_qualities_maximum(); break;
             case "min_by_creation_date": messageGeneration.min_by_creation_date(); break;
             case "count_by_difficulty": messageGeneration.count_by_difficulty(); break;
-            default: System.out.printf("Команды %s не существует\n", mainCommand); return true;
+            default:
+                CommandPanel.addEntry(String.format("Команды %s не существует", mainCommand));
+                System.out.printf("Команды %s не существует\n", mainCommand); return true;
         }
         message = messageGeneration.getMessage();
         if (message.getReady()) {
-            if (messager.sendMessage(messageGeneration.getMessage())) {
-                answer = messager.getAnswer();
-                for (String message : answer.getMessages()) {
-                    System.out.println(message.trim() );
-                }
-                return true;
-            }
+            messager.sendMessage(messageGeneration.getMessage());
         } else {
+            CommandPanel.addEntry("Сообщение сформированно некорректно");
             System.out.println("Сообщение сформированно некорректно");
             return false;
         }
@@ -113,11 +122,44 @@ public class CommandReader {
         switch (answer.getCommand()) {
             case "message" :
                 for (String message : answer.getMessages()) {
+                    CommandPanel.addEntry(message.trim());
                     System.out.println(message.trim() );
                 }
                 return true;
-            case "autorization" : ;
-            default: System.out.println("Не могу оперделить тип ответа"); return false;
+            case "autorization" :
+                String line = answer.getMessages().get(0);
+                switch (line) {
+                    case "permission": {
+                        setAuthorized(true);
+                        messageGeneration.setUserId(answer.getId());
+                        messageGeneration.setLogin(answer.getLogin());
+                        messageGeneration.setPassword(answer.getPassword());
+                        System.out.println(answer.getMessages().get(1));
+                        Application.setting_panel.setUser(answer.getLogin());
+                        Application.viewMainPanel();break;}
+                    case "rejection" :
+                        System.out.println((answer.getMessages().get(1)));
+                        LoginPanel.setError((answer.getMessages().get(1))); break;
+                    default: System.out.println("Ошибка в полученном сообщении");
+                };return true;
+            case "usingId":
+                usingId = new ArrayList<>();
+                for (String message : answer.getMessages()) {
+                    usingId.add(Long.parseLong(message));
+                }; return true;
+            case "updateTable" :
+                Application.table_panel.clearTable();
+                tableList = answer.getTableMap();
+                for (HashMap map: tableList) {
+                    Application.table_panel.addRow(map);
+                    System.out.println(map.toString());
+                }
+                Application.table_panel.updateTable();
+                return true;
+
+            default:
+                CommandPanel.addEntry("Не могу оперделить тип ответа");
+                System.out.println("Не могу оперделить тип ответа"); return false;
 
         }
     }
@@ -129,34 +171,29 @@ public class CommandReader {
             System.out.println("Проблемка ввода");
             return false;
         }
-
-
         if (command==null) {return false;}
         String[] arrLine = command.split(" ");
         String mainCommand = arrLine[0].trim();
 
         messageGeneration.newMessage();
         messageGeneration.setArgumets(arrLine.clone(), usingId);
-        switch (mainCommand){
-            case "sing_in" : messageGeneration.sing_in();break;
-            case "sing_up" : messageGeneration.sing_up(); break;
-            default: System.out.println("Введена не верная команда. Попробуйте sing_in или sing_up");
+        if (arrLine.length == 3) {
+            switch (mainCommand){
+                case "sing_in" : messageGeneration.sing_in(arrLine[1], arrLine[2]);break;
+                case "sing_up" : messageGeneration.sing_up(arrLine[1], arrLine[2]); break;
+            }
+        }  else if (arrLine.length == 1) {
+            switch (mainCommand){
+                case "sing_in" : messageGeneration.sing_in();break;
+                case "sing_up" : messageGeneration.sing_up(); break;
+                default: System.out.println("Введена не верная команда. Попробуйте sing_in или sing_up");
+            }
         }
+
+
         message = messageGeneration.getMessage();
         if (message.getReady()) {
-            if (messager.sendMessage(messageGeneration.getMessage())) {
-                answer = messager.getAnswer();
-                String line = answer.getMessages().get(0);
-                switch (line) {
-                    case "permission": {setAuthorized(true);
-                        messageGeneration.setLogin(answer.getLogin());
-                        messageGeneration.setPassword(answer.getPassword());
-                        System.out.println(answer.getMessages().get(1));break;}
-                    case "rejection" : System.out.println(answer.getMessages().get(1)); break;
-                    default: System.out.println("Ошибка в полученном сообщении");
-                }
-                return true;
-            }
+            messager.sendMessage(messageGeneration.getMessage());
         } else {
             System.out.println("Сообщение сформированно некорректно");
             return false;
@@ -164,17 +201,11 @@ public class CommandReader {
         return true;
     }
 
-    public void getUsingId() throws  IOException{
+    public void getUsingId() throws IOException, InterruptedException {
         messageGeneration.newMessage();
         messageGeneration.getUsingId();
         messager.sendMessage(messageGeneration.getMessage());
-        answer = messager.getAnswer();
-        if (answer != null) {
-            usingId = new ArrayList<>();
-            for (String message : answer.getMessages()) {
-                usingId.add(Long.parseLong(message));
-            }
-        }
+        Thread.sleep(50);
     }
 
     public boolean executeScript(String fileName) throws  IOException, InterruptedException{
@@ -198,4 +229,21 @@ public class CommandReader {
         readScript = false;
         return true;
     }
+
+    public Application getApp() {
+        return app;
+    }
+
+    public void setApp(Application app) {
+        this.app = app;
+    }
+
+    public LabWork getLabwork() {
+        return labwork;
+    }
+
+    public void setLabwork(LabWork labwork) {
+        this.labwork = labwork;
+    }
+
 }

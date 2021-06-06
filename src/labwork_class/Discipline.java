@@ -13,6 +13,8 @@ public class Discipline implements  Serializable {
     private int practiceHours;
     private transient Scanner scan;
 	private transient CheckInput check = new CheckInput();
+
+	public Discipline() {}
     
     public Discipline(String type, Scanner scan) {
     	this.scan = scan;

@@ -14,7 +14,11 @@ public class Coordinates implements Serializable {
 	transient private Scanner scan;
 	transient private CheckInput check = new CheckInput();
 
-    
+	public Coordinates(){
+
+	}
+
+
     //сделать конструктор
     public Coordinates(String type, Scanner scan){
     	if (type.equals("input")) {
@@ -39,7 +43,8 @@ public class Coordinates implements Serializable {
 		try{
 			x = check.checkLong(value, Long.MIN_VALUE, 691L, false);
 		} catch (BadValueException e) {
-			throw new BadValueException(type, "x");
+			e.setVar("x");
+			throw e;
 		}
     }
 
@@ -47,7 +52,8 @@ public class Coordinates implements Serializable {
 		try{
     	y = check.checkLong(value, Long.MIN_VALUE, Long.MAX_VALUE, false);
 		} catch (BadValueException e) {
-			throw new BadValueException(type, "y");
+			e.setVar("y");
+			throw e;
 		}
     }
 

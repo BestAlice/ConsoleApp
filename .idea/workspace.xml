@@ -11,31 +11,54 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="02ce3531-ac0e-4e19-afe7-675284581a36" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/appFiles/SettingPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/Application.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/Application.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/CommadPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/CommadPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/CommadPanel.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/InfoPlane.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/InfoPlane.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/LoginPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/LoginPanel.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/TablePanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/TablePanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/UserPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/UserPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/VisualPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/appFiles/VisualPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/client/ClientMessageGeneration.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/client/ClientMessageGeneration.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/client/ClientMessager.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/client/ClientMessager.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/client/CommandReader.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/client/CommandReader.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/client/Main$Run.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/client/Main$Run.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/client/Connection.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/client/Connection.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/client/Main$Authorization.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/client/Main$Run.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/client/Main$connectThread.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/client/Main$connectThread.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/client/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/client/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/collection_control/DataBase.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/collection_control/DataBase.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/collection_control/MessageObject.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/collection_control/MessageObject.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/labwork_class/LabWork.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/labwork_class/LabWork.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/server/CommandInterpreter$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/server/CommandInterpreter$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/server/CommandInterpreter.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/server/CommandInterpreter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$Accepter.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$Accepter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$Reader.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$Reader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$Writer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$Writer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$commandExecutor.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$commandExecutor.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$consoleReader.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess$consoleReader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/server/ServerProcess.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/server/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/server/User.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/ConsoleApp/testingThread.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ConsoleApp/testingThread.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/appFiles/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/appFiles/Application.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/appFiles/CommadPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/appFiles/CommadPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/appFiles/CommadPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/appFiles/CommandPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/appFiles/InfoPlane.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/appFiles/InfoPlane.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/appFiles/LoginPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/appFiles/LoginPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/appFiles/SettingPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/appFiles/SettingPanel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/appFiles/TablePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/appFiles/TablePanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/appFiles/UserPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/appFiles/UserPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/appFiles/VisualPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/appFiles/VisualPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client/ClientMessageGeneration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ClientMessageGeneration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client/ClientMessager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ClientMessager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client/CommandReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/CommandReader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client/Connection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/Connection.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/client/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/collection_control/BadValueException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/collection_control/BadValueException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/collection_control/CheckInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/collection_control/CheckInput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/collection_control/DataBase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/collection_control/DataBase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/collection_control/MessageObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/collection_control/MessageObject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/labwork_class/Coordinates.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/labwork_class/Coordinates.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/labwork_class/Discipline.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/labwork_class/Discipline.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/labwork_class/LabWork.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/labwork_class/LabWork.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/CommandInterpreter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/CommandInterpreter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/ServerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/ServerProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/testingThread.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/testingThread.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -95,7 +118,7 @@
       <recent name="appFiles" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Test">
+  <component name="RunManager" selected="Application.Client">
     <configuration name="Client" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="client.Main" />
       <module name="ConsoleApp" />
@@ -119,15 +142,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -154,7 +175,10 @@
       <workItem from="1622212822458" duration="16906000" />
       <workItem from="1622277408221" duration="249000" />
       <workItem from="1622722818200" duration="29045000" />
-      <workItem from="1622821110518" duration="21046000" />
+      <workItem from="1622821110518" duration="21690000" />
+      <workItem from="1622885208749" duration="25109000" />
+      <workItem from="1622920548215" duration="7976000" />
+      <workItem from="1622975908195" duration="39452000" />
     </task>
     <servers />
   </component>
@@ -177,9 +201,34 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/appFiles/SettingPanel.java</url>
-          <line>57</line>
-          <option name="timeStamp" value="1" />
+          <url>file://$PROJECT_DIR$/src/server/CommandInterpreter.java</url>
+          <line>102</line>
+          <option name="timeStamp" value="41" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/client/CommandReader.java</url>
+          <line>139</line>
+          <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/appFiles/LoginPanel.java</url>
+          <line>124</line>
+          <option name="timeStamp" value="61" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/labwork_class/LabWork.java</url>
+          <line>274</line>
+          <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/client/CommandReader.java</url>
+          <line>73</line>
+          <option name="timeStamp" value="74" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/appFiles/InfoPlane.java</url>
+          <line>486</line>
+          <option name="timeStamp" value="75" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

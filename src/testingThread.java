@@ -1,7 +1,6 @@
 import appFiles.Application;
 
-
-
+import javax.swing.plaf.TableHeaderUI;
 
 
 public class testingThread {
@@ -13,6 +12,19 @@ public class testingThread {
         Application app = new Application();
 
         app.viewMainPanel();
+
+        for (int i = 0; i < 20; i++){
+            //Thread.sleep(100);
+            app.command_panel.command_answer.setText(app.command_panel.command_answer.getText() + "\n" + "1234567890");
+        }
+        String[] list = {"111111", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+        app.table_panel.addRow(list);
+        app.table_panel.model.addRow(new Object[]{"111111", "2", "3", "4", "5", "6", "7", "8", "9", "10"});
+        //Application.command_panel.update();
+        app.table_panel.update();
+        app.update();
+        Thread.sleep(0);
+        //app.viewLoginingPanel();
 
         //app.info_panel.viewValueElements();
 

@@ -5,6 +5,7 @@ import labwork_class.LabWork;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MessageObject implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -20,6 +21,7 @@ public class MessageObject implements Serializable {
     private transient boolean ready = false;
     private ArrayList<String> messages = new ArrayList<>();
     private ArrayList<Long> usingId;
+    private ArrayList<HashMap> tableMap = new ArrayList<>();
 
 
     public String getCommand(){
@@ -99,5 +101,13 @@ public class MessageObject implements Serializable {
 
     public void setLogin(String login) {
         this.login = login;
+    }
+
+    public void addMap(HashMap<String, Object> newMap) {
+        tableMap.add(newMap);
+    }
+
+    public ArrayList<HashMap> getTableMap(){
+        return tableMap;
     }
 }

@@ -32,6 +32,7 @@ public class ServerProcess {
             DataBase BD = new DataBase();
             LabList = Collections.synchronizedList(BD.selectLabList());
             CommandInterpreter.setBD(BD);
+            CommandInterpreter.setUserList(UserList);
             for (LabWork lab: LabList) {
                 LabWork.addId(lab.getId());
             }
@@ -117,6 +118,7 @@ public class ServerProcess {
                             UserList.add(new_user); // добавить новое соединенние в список
                             System.out.println("Пользователь успешно подключён");
                             readExecutor.execute(new Reader(new_user));
+                            deamonExecutor.execute(new Updater(new_user));
                         } catch (IOException e) {
                             // Если завершится неудачей, закрывается сокет,
                             // в противном случае, нить закроет его при завершении работы:
@@ -134,6 +136,33 @@ public class ServerProcess {
         }
     }
 
+    public class Updater implements Runnable  {
+        User user;
+        public Updater(User user){
+            this.user = user;
+        }
+
+        public void run() {
+            while (true) {
+                if (user.isNeedUpdate() & user.isAutorizated()) {
+                    try {
+                        System.out.println("Обновляю таблицу для "+ user.getLogin());
+
+                        user.update();
+                        user.setNeedUpdate(false);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                try {
+                    Thread.sleep(30);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public class Reader implements Runnable  {
         User user;
         public Reader(User user){
@@ -143,14 +172,16 @@ public class ServerProcess {
         public void run() {
             while (!Thread.currentThread().isInterrupted() & user.isRunning()) {
                 try {
-                    System.out.println("Читаю новые сообщения от пользователя");
                     user.readMessage();
-                    System.out.println("Сообщение успешно прочитано");
-                    commandExecuteExecutor.execute(new commandExecutor(user));
+                    if (!user.getMessage().getCommand().equals("test")){
+                        System.out.println("Читаю новые сообщения от пользователя");
+                        commandExecuteExecutor.execute(new commandExecutor(user));
+                    } else {
+                        continue;
+                    }
                 } catch (IOException e) {
                     System.out.printf("Связь с пользоваетелем прервана\n");
                     e.printStackTrace();
-
                 }
             }
             System.out.println("Этот Reader завершил свою работу");
@@ -177,9 +208,17 @@ public class ServerProcess {
         @Override
         public void run() {
             try {
-                System.out.println("Отправляю ответ");
+                try {
+                    Thread.sleep(30);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Отправляю ответ пользователю "+ user.getLogin());
                 user.writeAnswer();
                 System.out.println("Ответ отправлен");
+                if (!user.isAutorizated()){
+                    user.setAutorizated(true);
+                }
             } catch (IOException e) {
                 System.out.println("Прервано соединение с пользователем");
             }

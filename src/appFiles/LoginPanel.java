@@ -2,21 +2,25 @@ package appFiles;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class LoginPanel extends UserPanel{
-     Component label;
-     Component login_text;
-     Component login_field;
-     Component password_text;
-     Component password_field;
-     Component enter;
-     Component register;
+     JLabel label;
+     JLabel login_text;
+     JTextField login_field;
+     JLabel password_text;
+     JPasswordField password_field;
+     JButton enter;
+     JButton register;
+     static JTextArea error_line;
     
     public LoginPanel(SpringLayout layout) {
         super(layout);
         setBackground(Color.white);
         setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
-        setPreferredSize(new Dimension(300, 150));
+        //setPreferredSize(new Dimension(300, 150));
     }
 
     @Override
@@ -27,7 +31,13 @@ public class LoginPanel extends UserPanel{
          password_text = new JLabel("Пароль");
          password_field = new JPasswordField(10);
          enter = new JButton("Войти");
+         enter.addActionListener(new Sing_in());
          register = new JButton("Зарегетрироваться");
+         register.addActionListener(new Sing_up());
+         error_line = new JTextArea("");
+         error_line.setForeground(Color.red);
+
+        //error_line.setPreferredSize(new Dimension(100, 20));
 
         //login_text.setPreferredSize(new Dimension(35, 20));
 
@@ -38,6 +48,7 @@ public class LoginPanel extends UserPanel{
         add(password_field);
         add(enter);
         add(register);
+        add(error_line);
         update();
 
         
@@ -45,10 +56,18 @@ public class LoginPanel extends UserPanel{
 
     @Override
     public void setPosition() {
+
+        layout.putConstraint(SpringLayout.HORIZONTAL_CENTER , error_line, 0,
+                SpringLayout.HORIZONTAL_CENTER , this);
+
+        layout.putConstraint(SpringLayout.NORTH , error_line, 10,
+                SpringLayout.NORTH , this);
+
+
         //Положение label
         layout.putConstraint(SpringLayout.HORIZONTAL_CENTER , label, 0,
                 SpringLayout.HORIZONTAL_CENTER , this);
-        layout.putConstraint(SpringLayout.NORTH , label, 0,
+        layout.putConstraint(SpringLayout.NORTH , label, DISTANCE+10,
                 SpringLayout.NORTH , this);
 
         //Положение строки Логина
@@ -80,5 +99,43 @@ public class LoginPanel extends UserPanel{
                 SpringLayout.NORTH , register);
         layout.putConstraint(SpringLayout.EAST , enter, -DISTANCE ,
                 SpringLayout.WEST , register);
+    }
+
+    public class Sing_in implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String login = login_field.getText();
+            String password = String.valueOf(password_field.getPassword());
+            if (login.equals("") || password.equals("")){
+                setError("Логин и пароль не могут быть пустыми");
+                update();
+            } else {
+                try {
+                    Application.commandReader.Authorization(String.format("sing_in %s %s", login, password));
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public class Sing_up implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String login = login_field.getText();
+            String password = login_field.getText();
+            if (login.equals("") || password.equals("")){
+                setError("Логин и пароль не могут быть пустыми");
+                update();
+            } else {
+                try {
+                    Application.commandReader.Authorization(String.format("sing_up %s %s", login, password));
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void setError(String line){
+        error_line.setText("Error: " + line);
     }
 }

@@ -16,8 +16,9 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class ClientMessageGeneration {
-    private static String login;
-    private static String password;
+    public static Long userId;
+    public static String login;
+    public static String password;
     private String[] argumets;
     private CheckInput checker = new CheckInput();
     private LocalDateTime timeInit =  LocalDateTime.now();
@@ -29,6 +30,12 @@ public class ClientMessageGeneration {
     public ClientMessageGeneration(Scanner scan){
         this.scan = scan;
     }
+
+
+    public void setUserId(Long userId) {
+        ClientMessageGeneration.userId = userId;
+    }
+
 
     public void newMessage(){
         message = new MessageObject();
@@ -96,6 +103,12 @@ public class ClientMessageGeneration {
         message.setReady();
     }
 
+    public void add(LabWork newLab) {
+        message.setCommand("add");
+        message.setLaba(newLab);
+        message.setReady();
+    }
+
     public void update() {
         try {
             Long id = checker.checkId(argumets[1], usingId);
@@ -109,6 +122,12 @@ public class ClientMessageGeneration {
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Не введено id");
         }
+    }
+
+    public void update(LabWork newLab) {
+        message.setCommand("update");
+        message.setLaba(newLab);
+        message.setReady();
     }
 
     public void remove_by_id (){
@@ -212,6 +231,16 @@ public class ClientMessageGeneration {
         message.setReady();
     }
 
+    public void sing_in(String login, String password) {
+        login = login.replaceAll("[^\\da-zA-Zа-яёА-ЯЁ ]", "").replaceAll(" ", "_");
+        password = password.replaceAll("[^\\da-zA-Zа-яёА-ЯЁ ]", "").replaceAll(" ", "_");
+        password = md5Custom(password);
+        message.setCommand("sing_in");
+        message.setLogin(login);
+        message.setPassword(password);
+        message.setReady();
+    }
+
     public void sing_up() {
         System.out.println("Введите новый логин:");
         System.out.print("> ");
@@ -219,6 +248,16 @@ public class ClientMessageGeneration {
         System.out.println("Введите новый пароль:");
         System.out.print("> ");
         String password = scan.nextLine().replaceAll("[^\\da-zA-Zа-яёА-ЯЁ ]", "").replaceAll(" ", "_");
+        password = md5Custom(password);
+        message.setCommand("sing_up");
+        message.setLogin(login);
+        message.setPassword(password);
+        message.setReady();
+    }
+
+    public void sing_up(String login, String password) {
+        login = login.replaceAll("[^\\da-zA-Zа-яёА-ЯЁ ]", "").replaceAll(" ", "_");
+        password = password.replaceAll("[^\\da-zA-Zа-яёА-ЯЁ ]", "").replaceAll(" ", "_");
         password = md5Custom(password);
         message.setCommand("sing_up");
         message.setLogin(login);

@@ -34,10 +34,11 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private Long personalQualitiesMaximum; //Поле может быть null, Значение поля должно быть больше 0
     private Difficulty difficulty = null; //Поле может быть null
     private Discipline discipline = null; //Поле может быть null
+	private String userName = null;
 	private Long userId = null;
 
 
-	private transient int weight = 0;
+	private int weight = 0;
 
 	public LabWork newLab() {
 		creationDate =LocalDateTime.now();
@@ -268,6 +269,43 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public HashMap<String, Object> getMap() {
+		HashMap<String, Object> map = new HashMap<>();
+		map.put("id", id);
+		map.put("name", name);
+		map.put("x", coordinates.getX());
+		map.put("y", coordinates.getY());
+		//DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YYYY hh:mm:ss");
+		map.put("creationDate", creationDate);
+		map.put("minimalPoint", minimalPoint);
+		map.put("personalQualitiesMaximum", personalQualitiesMaximum);
+		map.put("difficulty", difficulty);
+
+		if (discipline == null) {
+			map.put("disciplineName", null);
+			map.put("practiceHours", null);
+		} else {
+			map.put("disciplineId", discipline.getId());
+			map.put("disciplineName", discipline.getName());
+			map.put("practiceHours", discipline.getPracticeHours());
+		}
+		map.put("userId", userId.toString());
+		map.put("userName", userName);
+		map.put("coordinatesId", coordinates.getId());
+
+		findWeight();
+		map.put("weight", String.valueOf(weight));
+		return map;
 	}
 }
 

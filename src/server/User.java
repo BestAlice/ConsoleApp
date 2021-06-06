@@ -16,12 +16,15 @@ public class User {
     private Long id;
     private String login;
     private String password;
+    private boolean autorizated = false;
     private boolean running = true;
     private MessageObject message;
     private MessageObject answer;
+    private MessageObject table;
     private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
+    private boolean needUpdate = false;
 
     public User () {
         interpreter = new CommandInterpreter();
@@ -58,11 +61,19 @@ public class User {
     }
 
     public void writeAnswer() throws IOException{
-        out.writeObject(answer);
+        synchronized (out) {
+            out.writeObject(answer);
+        }
+    }
+
+    public void writeTable() throws  IOException{
+        synchronized (out) {
+            out.writeObject(table);
+        }
     }
 
     public void interpret() {
-        System.out.println("»сполн€ю");
+        System.out.println("»сполн€ю комагду " + message.getCommand());
         synchronized (ServerProcess.getLabList()) {
             interpreter.setMessage(message);
             interpreter.run();
@@ -139,4 +150,33 @@ public class User {
 
     public String getLogin() {return login;}
     public String getPassword() {return  password;}
+
+    public boolean isNeedUpdate() {
+        return needUpdate;
+    }
+
+    public void setNeedUpdate(boolean needUpdate) {
+        this.needUpdate = needUpdate;
+    }
+
+    public boolean isAutorizated() {
+        return autorizated;
+    }
+
+    public void setAutorizated(boolean autorizated) {
+        this.autorizated = autorizated;
+    }
+
+
+    public void update() throws IOException {
+        table = interpreter.updateTable();
+        synchronized (out) {
+            out.writeObject(table);
+        }
+
+    }
+
+    public MessageObject getTable() {
+        return table;
+    }
 }

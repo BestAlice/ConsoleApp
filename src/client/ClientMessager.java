@@ -13,6 +13,7 @@ public class ClientMessager {
     private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
+    private boolean reading;
 
     public ClientMessager(Socket socket) {
         this.socket = socket;
@@ -31,23 +32,37 @@ public class ClientMessager {
             return answerObject;
 
         } catch (IOException e) {
-            socket.getChannel().close();
-            socket.close();
-            System.out.println("Ошибка передачи данных");
+            //socket.getChannel().close();
+            System.out.println("Ошибка при чтении");
+            if (reading) {
+                socket.close();
+                System.out.println("Ошибка передачи данных");
+                throw new IOException();
+            }
         } catch (ClassNotFoundException e) {
             System.out.println("Передан ошибочный класс данных");
         }
         return answerObject;
     }
 
-    public boolean sendMessage(MessageObject message){
+    public boolean sendMessage(MessageObject message) throws IOException {
         try{
             out.writeObject(message);
             out.flush();
             return true;
         } catch (IOException e) {
-            System.out.println("Ошибка передачи данных");
+            if (reading) {
+                System.out.println(message.getCommand());
+                socket.close();
+                System.out.println("Ошибка передачи данных");
+                throw new IOException();
+            }
             return false;
         }
     }
+
+    public void setReading(boolean reading) {
+        this.reading = reading;
+    }
+
 }

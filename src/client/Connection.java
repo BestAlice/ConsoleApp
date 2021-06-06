@@ -22,7 +22,7 @@ public class Connection {
         System.out.println("Попытка переподключения");
         long startTime = System.currentTimeMillis();
         long nowTime = System.currentTimeMillis();
-        while(nowTime - startTime < 3000){
+        while(nowTime - startTime < 10000){
             try{
                 try{
                     socket = new Socket(host, port);

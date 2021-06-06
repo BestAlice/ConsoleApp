@@ -1,12 +1,18 @@
 package client;
 
+import appFiles.Application;
 import collection_control.BadValueException;
 import collection_control.CheckInput;
+import collection_control.MessageObject;
 
+import javax.swing.plaf.TableHeaderUI;
 import java.io.*;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
 import java.util.Scanner;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class Main {
@@ -18,8 +24,10 @@ public class Main {
     private static Connection connection= new Connection();
     private static boolean needConnect = true;
     private static int PORT;
-    private  static CommandReader commandReader =null;
+    private static CommandReader commandReader =null;
     private static Thread mainThread;
+    private static ExecutorService executorPool = Executors.newCachedThreadPool();
+    private static Application app;
 
     public static void main(String[] args){
         //Проверяем введённый аргумент на то, что оно - порт
@@ -32,6 +40,7 @@ public class Main {
             System.out.println("Ошибка порта. " + e.getMessage());
             System.exit(0);
         }
+        app = new Application();
 
         mainThread = new Thread(new connectThread());
         mainThread.run();
@@ -40,34 +49,39 @@ public class Main {
     public static class connectThread implements Runnable {
         @Override
         public void run() {
-            Thread autorizate = null;
-            Thread running = null;
+            Thread read_thread = null;
+            Thread write_thread = null;
+            app.viewLoginingPanel();
             while (needConnect){
                 try {
                     try {
                         if (connection.getSocket() == null){
-
                             connection.connect("localhost", PORT);
                             socket = connection.getSocket();
                         }
-
                         commandReader = new CommandReader(socket, scan);
-                        autorizate = new Thread(new Authorization());
-                        running = new Thread(new Run());
-                        autorizate.run();
-                        System.out.println("Введите команду");
-                        running.run();
+                        commandReader.setApp(app);
+                        Application.setCommandReader(commandReader);
+                        write_thread = new Thread(new WriteThread());
+                        read_thread = new Thread(new ReadThread());
+                        read_thread.setDaemon(true);
 
+                        executorPool.submit(write_thread);
+                        executorPool.submit(read_thread);
+
+                        MessageObject test = new MessageObject();
+                        test.setCommand("test");
                         while (commandReader.isReading()){
-                            if (!socket.isConnected()) {
-                                throw new IOException();
-                            }
+                            commandReader.messager.sendMessage(test);
+                            Thread.sleep(5000);
                         }
-                        break;
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     } finally {
                         socket.close();
-                        autorizate.interrupt();
-                        running.interrupt();
+                        executorPool.shutdown();
+                        break;
                     }
 
                 } catch (IOException e) {
@@ -76,34 +90,15 @@ public class Main {
                         reconnection();
                     } else {
                         System.out.println("Успешно отстоединился от сервера...");
+                        break;
                     }
+
                 } catch (NullPointerException e) {
                     System.out.println("Соединение не найдено...");
                     reconnection();
                 }
-            }
-            System.out.println("Завершение работы приложения");
-        }
-    }
-
-    public static class Authorization implements Runnable{
-        @Override
-        public void run() {
-            while (!commandReader.isAuthorized()) {
-                try {
-                    System.out.println("Необходимо авторизоваться(sing_in) или зарегестрироваться(sing_up)");
-                    String command = "";
-                    System.out.print("> ");
-                    command = scan.nextLine();
-                    commandReader.Authorization(command);
-                } catch (IOException e) {
-                    break;
-                }
-
-            }
-
-        }
-    }
+        }System.out.println("Завершение работы приложения");
+    }}
 
     public static class WriteThread implements Runnable{
 
@@ -111,19 +106,18 @@ public class Main {
         public void run() {
             while (commandReader.isReading()){
                 try {
+                    String command = "";
                     if (commandReader.isAuthorized()){
-                        String command = "";
-                        System.out.print("> ");
                         command = scan.nextLine();
                         commandReader.writeCommand(command);
                     } else {
                         System.out.println("Необходимо авторизоваться(sing_in) или зарегестрироваться(sing_up)");
-                        String command = "";
-                        System.out.print("> ");
                         command = scan.nextLine();
                         commandReader.Authorization(command);
                     }
-                } catch (IOException e) {
+                    Thread.sleep(100);
+                } catch (IOException | InterruptedException e) {
+                    //reconnection();
                     break;
                 }
 
@@ -139,32 +133,13 @@ public class Main {
                 try {
                     commandReader.readAnswer();
                 } catch (IOException e) {
+                    //reconnection();
                     break;
                 }
             }
         }
     }
 
-
-
-    public static class Run implements Runnable{
-        @Override
-        public void run() {
-            while (commandReader.isReading()){
-                try {
-                    if (commandReader.isAuthorized()){
-                        String command = "";
-                        System.out.print("> ");
-                        command = scan.nextLine();
-                        commandReader.writeCommand(command);
-                    }
-                } catch (IOException e) {
-                    break;
-                }
-
-            }
-        }
-    }
 
 
 
@@ -193,4 +168,19 @@ public class Main {
             }
         }
     }
+
+    Executor myExecutor = (runnable) -> {
+        Thread thread = new Thread(runnable);
+        executorPool.submit(thread);
+    };
+
+    public static void setPanel(String panel) {
+        if (panel.equals("login")) {
+            app.viewLoginingPanel();
+        } else {
+            app.viewMainPanel();
+        }
+    }
+
+
 }

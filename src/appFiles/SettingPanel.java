@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 
 public class SettingPanel extends UserPanel{
 
-    public JTextArea user_label;
+    public JLabel user_label;
     public JButton language_box;
     public JButton ru_button;
     public JButton et_button;
@@ -23,8 +23,8 @@ public class SettingPanel extends UserPanel{
 
     @Override
     public void createPanel() {
-        user_label = new JTextArea("User: " + "User");
-        user_label.setEditable(false);
+        user_label = new JLabel("User: " + "User");
+        user_label.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         language_box = new JButton("Изменить язык");
         language_box.addActionListener(new ChooseLanguage());
         ru_button = new JButton("Ru");
@@ -34,7 +34,6 @@ public class SettingPanel extends UserPanel{
         enter_button = new JButton("Отмена");
         enter_button.addActionListener(new Esc());
         update();
-
     }
 
     public void viewSettings() {
@@ -57,8 +56,11 @@ public class SettingPanel extends UserPanel{
     public void setPosition(){
         layout.putConstraint(SpringLayout.EAST, user_label, 0,
                 SpringLayout.EAST, this);
+        /*
         layout.putConstraint(SpringLayout.WEST, user_label, -200,
                 SpringLayout.EAST, this);
+
+         */
         layout.putConstraint(SpringLayout.NORTH, user_label, 0,
                 SpringLayout.NORTH, language_box);
         layout.putConstraint(SpringLayout.SOUTH, user_label, 0,
@@ -79,6 +81,11 @@ public class SettingPanel extends UserPanel{
                 SpringLayout.EAST, bg_button);
         layout.putConstraint(SpringLayout.WEST, enter_button, DISTANCE,
                 SpringLayout.EAST, en_button);
+    }
+
+    public void setUser(String newUser){
+        user_label.setText("User: " + newUser);
+        update();
     }
 
     public class ChooseLanguage implements ActionListener {

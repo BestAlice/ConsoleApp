@@ -17,6 +17,7 @@ public class CommandInterpreter {
     private static DataBase BD;
     private LocalDateTime timeInit =  LocalDateTime.now();
     private static ArrayList<Long> usingId = LabWork.getUsingId();
+    private static ArrayList<User> UserList;
     private Socket socket = null;
     private User user;
 
@@ -24,9 +25,19 @@ public class CommandInterpreter {
         this.LabList = ServerProcess.getLabList();
     }
 
+    public static ArrayList<User> getUserList() {
+        return UserList;
+    }
+
+    public static void setUserList(ArrayList<User> userList) {
+        UserList = userList;
+    }
+
     public void setUser(User user){this.user = user;}
 
     public static void setBD(DataBase base) {BD = base;}
+
+
 
     public void setMessage(MessageObject message){
         this.message = message;
@@ -70,6 +81,7 @@ public class CommandInterpreter {
                         default: wrong_command();
                     }
                 } else {
+
                     answer.addMessage("Что за магия чисел? Пароль и логин не совпадают с даныыми сервера");
                     answer.getReady();
                 }
@@ -80,12 +92,15 @@ public class CommandInterpreter {
     private void sing_up() {
         user.setLogin(message.getLogin());
         user.setPassword(message.getPassword());
+        answer.setCommand("autorization");
         if (BD.insertUser(user)) {
             answer.addMessage("permission");
             answer.addMessage("Успешная регестрация");
             answer.setLogin(user.getLogin());
             answer.setPassword(user.getPassword());
+            answer.setId(user.getId());
             answer.getReady();
+            user.setNeedUpdate(true);
         } else {
             user.setId(null);
             user.setLogin(null);
@@ -98,6 +113,7 @@ public class CommandInterpreter {
 
     private void sing_in() {
         User BD_user = BD.selectUser(message.getLogin(), message.getPassword());
+        answer.setCommand("autorization");
         if (BD_user == null) {
             answer.addMessage("rejection");
             answer.addMessage("Ошибка входа: неверный логин или пароль");
@@ -105,14 +121,16 @@ public class CommandInterpreter {
         } else {
             answer.addMessage("permission");
             answer.addMessage("Успешный вход");
+            answer.setId(BD_user.getId());
             answer.setLogin(BD_user.getLogin());
             answer.setPassword(BD_user.getPassword());
             user.setId(BD_user.getId());
             user.setLogin(BD_user.getLogin());
             user.setPassword(BD_user.getPassword());
+            user.setNeedUpdate(true);
             answer.setReady();
-        }
 
+        }
     }
 
     private void wrong_command() {
@@ -132,6 +150,7 @@ public class CommandInterpreter {
     }
 
     private void getUsingId() {
+        answer.setCommand("usingId");
         LabWork.getUsingId().stream().forEach(x -> answer.addMessage(String.valueOf(x)));
     }
 
@@ -206,6 +225,8 @@ public class CommandInterpreter {
         LabWork.addId(newLab.getId());
         sort();
         answer.addMessage("Лабораторная успешно добавлена");
+        System.out.println("Вес новой лабораторной: " + newLab.getWeight());
+        UpdatedAll();
     }
 
     public void update() {
@@ -218,6 +239,7 @@ public class CommandInterpreter {
                 updateLab.findWeight();
                 sort();
                 answer.addMessage("Работа успешно обновлена");
+                UpdatedAll();
             } else {
                 answer.addMessage("Эта работа пренадлежит другому пользовалелю");
             }
@@ -241,6 +263,7 @@ public class CommandInterpreter {
                 remove(lab);
                 sort();
                 answer.addMessage("Удаление завершено");
+                UpdatedAll();
             } else {
                 answer.addMessage("Эта работа пренадлежит другому пользовалелю");
             }
@@ -266,6 +289,7 @@ public class CommandInterpreter {
 
 
         answer.addMessage("Удаление пренадлежащих пользователю работ закончено");
+        UpdatedAll();
     }
 
     public void remove_first(){
@@ -276,6 +300,7 @@ public class CommandInterpreter {
                 LabWork.removeId(id);
                 LabList.remove(0);
                 answer.addMessage("Удаление завершено");
+                UpdatedAll();
             } else  {
                 answer.addMessage("Эта работа пренадлежит другому пользовалелю");
             }
@@ -300,6 +325,7 @@ public class CommandInterpreter {
 
             LabList.add(newLab);
             answer.addMessage("Новый элемент добавлен");
+            UpdatedAll();
         } else {
             answer.addMessage("Новый элемен не удовлетворяет условию добавления");
         }
@@ -320,6 +346,7 @@ public class CommandInterpreter {
 
             LabList.add(newLab);
             answer.addMessage("Новый элемент добавлен");
+            UpdatedAll();
         } else {
             answer.addMessage("Новый элемен не удовлетворяет условию добавления");
         }
@@ -336,6 +363,7 @@ public class CommandInterpreter {
                     BD.deteteLabWork(lab.getId());
                     answer.addMessage(String.format("Элемент %d Был удалён", lab.getId()));
                     remove(lab);
+                    UpdatedAll();
                 } else  {
                     answer.addMessage("Эта работа пренадлежит другому пользовалелю");
                 }
@@ -423,5 +451,19 @@ public class CommandInterpreter {
         }
     };
 
+    public void UpdatedAll() {
+        for (User user: UserList) {
+            user.setNeedUpdate(true);
+        }
+    }
+
+    public MessageObject updateTable() {
+        MessageObject table = new MessageObject();
+        table.setCommand("updateTable");
+        for (LabWork lab: LabList) {
+            table.addMap(lab.getMap());
+        }
+        return table;
+    }
 
 }

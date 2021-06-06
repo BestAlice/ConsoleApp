@@ -1,5 +1,6 @@
 package collection_control;
 
+import appFiles.CommandPanel;
 import labwork_class.Coordinates;
 import labwork_class.Discipline;
 import labwork_class.LabWork;
@@ -128,7 +129,8 @@ public class DataBase {
                 laba.setDiscipline(discipline, "read");
                 laba.setUserId(rs.getLong("user_id"));
 
-
+                User user = selectUser(laba.getUserId());
+                laba.setUserName(user.getLogin());
             }
             stmt.close();
             connection.commit();
