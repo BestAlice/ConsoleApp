@@ -146,6 +146,7 @@ public class ClientMessageGeneration {
     public void clear(){
         message.setCommand("clear");
         message.setReady();
+
     }
 
     public void remove_first(){

@@ -299,12 +299,12 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 			map.put("disciplineName", discipline.getName());
 			map.put("practiceHours", discipline.getPracticeHours());
 		}
-		map.put("userId", userId.toString());
+		map.put("userId", userId);
 		map.put("userName", userName);
 		map.put("coordinatesId", coordinates.getId());
 
 		findWeight();
-		map.put("weight", String.valueOf(weight));
+		map.put("weight", weight);
 		return map;
 	}
 }

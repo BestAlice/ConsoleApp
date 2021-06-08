@@ -231,18 +231,15 @@ public class CommandInterpreter {
 
     public void update() {
         try {
-            Long id = message.getId();
+            Long id = message.getLaba().getId();
             LabWork updateLab = this.findById(id);
-            if (user.haveAccessToLabWork(updateLab)) {
                 BD.updateLabWork(id, message.getLaba().newLab());
                 updateLab.update(message.getLaba());
                 updateLab.findWeight();
                 sort();
                 answer.addMessage("Работа успешно обновлена");
                 UpdatedAll();
-            } else {
-                answer.addMessage("Эта работа пренадлежит другому пользовалелю");
-            }
+
         } catch (ArrayIndexOutOfBoundsException e) {
             answer.addMessage("Ошибка поиска");
         } catch (NullPointerException e) {
@@ -258,15 +255,12 @@ public class CommandInterpreter {
                     .filter(x -> x.getId().equals(id))
                     .limit(1)
                     .findFirst().get();
-            if (user.haveAccessToLabWork(lab)) {
                 BD.deteteLabWork(lab.getId());
                 remove(lab);
                 sort();
                 answer.addMessage("Удаление завершено");
                 UpdatedAll();
-            } else {
-                answer.addMessage("Эта работа пренадлежит другому пользовалелю");
-            }
+
 
         }catch (ArrayIndexOutOfBoundsException e) {
             answer.addMessage("Не введено id");
@@ -275,19 +269,17 @@ public class CommandInterpreter {
 
     public void clear(){
         boolean changes = true;
-        while (changes){
-            changes = false;
+        while (changes) {
+            changes=false;
             for (LabWork lab: LabList) {
-                if (user.haveAccessToLabWork(lab)) {
+                if (user.getId().equals(lab.getUserId())) {
                     changes = true;
                     BD.deteteLabWork(lab.getId());
-                    remove(LabList.get(0));
+                    remove(lab);
                     break;
                 }
             }
         }
-
-
         answer.addMessage("Удаление пренадлежащих пользователю работ закончено");
         UpdatedAll();
     }

@@ -2,6 +2,8 @@ package appFiles;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class VisualPanel extends UserPanel{
     GrafPainter img;
@@ -30,5 +32,20 @@ public class VisualPanel extends UserPanel{
                 SpringLayout.SOUTH, this);
     }
 
+    public void updateImage(ArrayList<HashMap> labList) {
+        img.setLabList(labList);
+        update();
+    }
+    public void update(){
+        validate();
+        setPosition();
+        repaint();
+        img.repaint();
+    }
+
+    @Override
+    public void updateLocale() {
+
+    }
 
 }

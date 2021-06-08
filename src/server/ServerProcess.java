@@ -150,12 +150,14 @@ public class ServerProcess {
 
                         user.update();
                         user.setNeedUpdate(false);
+
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        user.setNeedUpdate(false);
+                        System.out.println("Ошибка отправки");
                     }
                 }
                 try {
-                    Thread.sleep(30);
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

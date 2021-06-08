@@ -1,12 +1,15 @@
 package appFiles;
 
 import javax.swing.*;
+import java.util.ResourceBundle;
 
 public abstract class UserPanel extends JPanel{
+    protected ResourceBundle locale;
     protected SpringLayout layout;
     protected int DISTANCE = 20;
 
     public UserPanel(SpringLayout layout){
+        locale = Application.rb;
         this.layout = layout;
         setLayout(layout);
         createPanel();
@@ -22,7 +25,8 @@ public abstract class UserPanel extends JPanel{
         validate();
         setPosition();
         repaint();
-
     }
+
+    public void updateLocale() {};
 
 }

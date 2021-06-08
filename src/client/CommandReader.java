@@ -60,7 +60,8 @@ public class CommandReader {
         String[] arrLine = command.split(" ");
         String mainCommand = arrLine[0].trim();
 
-        getUsingId();
+        //getUsingId();
+        Thread.sleep(20);
         messageGeneration.newMessage();
         messageGeneration.setArgumets(arrLine.clone(), usingId);
 
@@ -117,7 +118,7 @@ public class CommandReader {
         return true;
     }
 
-    public boolean readAnswer() throws IOException {
+    public boolean readAnswer() throws IOException, InterruptedException {
         answer = messager.getAnswer();
         switch (answer.getCommand()) {
             case "message" :
@@ -136,7 +137,10 @@ public class CommandReader {
                         messageGeneration.setPassword(answer.getPassword());
                         System.out.println(answer.getMessages().get(1));
                         Application.setting_panel.setUser(answer.getLogin());
-                        Application.viewMainPanel();break;}
+                        Application.viewMainPanel();
+                        Thread.sleep(10);
+                        //getUsingId();
+                        break;}
                     case "rejection" :
                         System.out.println((answer.getMessages().get(1)));
                         LoginPanel.setError((answer.getMessages().get(1))); break;
@@ -155,6 +159,8 @@ public class CommandReader {
                     System.out.println(map.toString());
                 }
                 Application.table_panel.updateTable();
+                Thread.sleep(10);
+                Application.visual_panel.updateImage(tableList);
                 return true;
 
             default:
@@ -202,10 +208,11 @@ public class CommandReader {
     }
 
     public void getUsingId() throws IOException, InterruptedException {
+        Thread.sleep(10);
         messageGeneration.newMessage();
         messageGeneration.getUsingId();
         messager.sendMessage(messageGeneration.getMessage());
-        Thread.sleep(50);
+        Thread.sleep(10);
     }
 
     public boolean executeScript(String fileName) throws  IOException, InterruptedException{
@@ -246,4 +253,7 @@ public class CommandReader {
         this.labwork = labwork;
     }
 
+    public void setUsingId(ArrayList<Long> usingId) {
+        CommandReader.usingId = usingId;
+    }
 }

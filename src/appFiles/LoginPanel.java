@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 public class LoginPanel extends UserPanel{
      JLabel label;
@@ -25,14 +26,15 @@ public class LoginPanel extends UserPanel{
 
     @Override
     public void createPanel() {
-         label = new JLabel("Вход/Регистрация");
-         login_text = new JLabel("Логин");
+        locale = Application.rb;
+         label = new JLabel(locale.getString("login.enter_reg"));
+         login_text = new JLabel(locale.getString("login.login"));
          login_field = new JTextField(10);
-         password_text = new JLabel("Пароль");
+         password_text = new JLabel(locale.getString("login.password"));
          password_field = new JPasswordField(10);
-         enter = new JButton("Войти");
+         enter = new JButton(locale.getString("login.enter"));
          enter.addActionListener(new Sing_in());
-         register = new JButton("Зарегетрироваться");
+         register = new JButton(locale.getString("login.registr"));
          register.addActionListener(new Sing_up());
          error_line = new JTextArea("");
          error_line.setForeground(Color.red);
@@ -50,8 +52,17 @@ public class LoginPanel extends UserPanel{
         add(register);
         add(error_line);
         update();
+    }
 
-        
+    @Override
+    public void updateLocale() {
+        locale = Application.rb;
+        label.setText(locale.getString("login.enter_reg"));
+        login_text.setText(locale.getString("login.login"));
+        password_text.setText(locale.getString("login.password"));
+        enter.setText(locale.getString("login.enter"));
+        register.setText(locale.getString("login.registr"));
+        update();
     }
 
     @Override
@@ -106,7 +117,7 @@ public class LoginPanel extends UserPanel{
             String login = login_field.getText();
             String password = String.valueOf(password_field.getPassword());
             if (login.equals("") || password.equals("")){
-                setError("Логин и пароль не могут быть пустыми");
+                setError(locale.getString("login.not_empty"));
                 update();
             } else {
                 try {
@@ -123,7 +134,7 @@ public class LoginPanel extends UserPanel{
             String login = login_field.getText();
             String password = login_field.getText();
             if (login.equals("") || password.equals("")){
-                setError("Логин и пароль не могут быть пустыми");
+                setError(locale.getString("login.not_empty"));
                 update();
             } else {
                 try {

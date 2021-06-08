@@ -4,6 +4,8 @@ import client.CommandReader;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 
 public class Application {
@@ -11,7 +13,7 @@ public class Application {
     public static Container content_panel;
     public static SpringLayout layout;
     public static CommandReader commandReader =null;
-    static int HEIGHT = 850;
+    static int HEIGHT = 870;
     static int WIDTH  = 1300;
     static int DISTANCE  = 20;
 
@@ -23,7 +25,12 @@ public class Application {
 
     private static String nowView = "Nothing";
 
-    public static JPanel login_panel;
+    public static LoginPanel login_panel;
+    public static myMenuBar bar;
+
+    public static Locale locale = new Locale("en", "GB");
+    public static ResourceBundle rb = ResourceBundle.getBundle("locale.text", locale);;
+    //rb = ResourceBundle.getBundle("locale.text", locale);
 
     public Application(){
         window = new JFrame("MyApp");
@@ -33,15 +40,22 @@ public class Application {
 
         layout = new SpringLayout();
 
+
         content_panel.setLayout(null);
         //createUserLabel();
+
+        bar = new myMenuBar();
+        window.setJMenuBar(bar);
+        bar.setApp(this);
 
         //Таблица
         table_panel = new TablePanel(layout);
 
         //Визуализация
+
+
         visual_panel = new VisualPanel(layout);
-        visual_panel.setPreferredSize(new Dimension(420, 300));
+        //visual_panel.setPreferredSize(new Dimension(420, 300));
 
         //окно командной строки
         command_panel = new CommandPanel(layout);
@@ -87,9 +101,22 @@ public class Application {
         content_panel.repaint();
     }
 
+    public void updateLocale (Locale locale1) {
+        locale = locale1;
+        rb =  ResourceBundle.getBundle("locale.text", locale);
+        command_panel.updateLocale();
+        info_panel.updateLocale();
+        login_panel.updateLocale();
+        bar.updateLocale();
+        setting_panel.updateLocale();
+        table_panel.updateLocale();
+        visual_panel.updateLocale();
+        update();
+    }
+
 
     public static void setPosition() {
-        login_panel.setBounds((WIDTH-300)/2, (HEIGHT-260)/2, 300, 200);
+        login_panel.setBounds((WIDTH-340)/2, (HEIGHT-260)/2, 340, 200);
         table_panel.setBounds(DISTANCE, DISTANCE, 800, 460);
         command_panel.setBounds(DISTANCE, 500, 800, 290);
         setting_panel.setBounds(840, DISTANCE, 420, 30);
@@ -152,5 +179,10 @@ public class Application {
 
     public static void setCommandReader(CommandReader reader){
         Application.commandReader = reader;
+    }
+
+    public static void setLocale(Locale locale){
+        Application.locale = locale;
+        rb = ResourceBundle.getBundle("locale.text", locale);
     }
 }

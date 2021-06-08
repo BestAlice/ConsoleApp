@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 public class CommandPanel extends UserPanel{
     private JTextField command_field;
@@ -20,9 +21,9 @@ public class CommandPanel extends UserPanel{
     
     public void createPanel(){
         command_field = new JTextField();
-        command_execute = new JButton("Исполнить");
+        command_execute = new JButton(locale.getString("command.execute"));
         command_execute.addActionListener(new SendCommand());
-        command_answer = new JTextArea("Hello");
+        command_answer = new JTextArea("");
         command_answer.setEditable(false);
         scroll_pane = new JScrollPane(command_answer);
         scroll_pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -59,8 +60,15 @@ public class CommandPanel extends UserPanel{
                 SpringLayout.SOUTH, this);
     }
 
+    @Override
+    public void updateLocale() {
+        locale = Application.rb;
+        command_execute.setText(locale.getString("command.execute"));
+        update();
+    }
+
     public static void addEntry(String line){
-        command_answer.setText(command_answer.getText() + "\n\n" + line);
+        command_answer.setText(command_answer.getText() + "\n" + line);
     }
 
     public class SendCommand implements ActionListener {

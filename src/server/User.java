@@ -61,15 +61,13 @@ public class User {
     }
 
     public void writeAnswer() throws IOException{
-        synchronized (out) {
-            out.writeObject(answer);
-        }
+        out.writeObject(answer);
+
     }
 
     public void writeTable() throws  IOException{
-        synchronized (out) {
-            out.writeObject(table);
-        }
+        out.writeObject(table);
+
     }
 
     public void interpret() {
@@ -170,9 +168,8 @@ public class User {
 
     public void update() throws IOException {
         table = interpreter.updateTable();
-        synchronized (out) {
-            out.writeObject(table);
-        }
+        out.writeObject(table);
+
 
     }
 

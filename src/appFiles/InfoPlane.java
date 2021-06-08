@@ -3,6 +3,7 @@ package appFiles;
 import client.ClientMessageGeneration;
 import collection_control.BadValueException;
 import labwork_class.Coordinates;
+import labwork_class.Difficulty;
 import labwork_class.Discipline;
 import labwork_class.LabWork;
 
@@ -12,9 +13,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 
 public class InfoPlane extends UserPanel{
     protected int FIELD_DISTANSE = 10;
@@ -95,68 +98,69 @@ public class InfoPlane extends UserPanel{
 
 
     public void createElements() {
-        createButton = new JButton("Создать");
+        createButton = new JButton(locale.getString("info.create"));
         createButton.addActionListener(new CreateNew());
-        changeButton = new JButton("Изменить");
+        changeButton = new JButton(locale.getString("info.change"));
         changeButton.addActionListener(new Change());
-        deleteButton = new JButton("Удалить");
-        enterButton = new JButton("Подтверить");
+        deleteButton = new JButton(locale.getString("info.delete"));
+        deleteButton.addActionListener(new Delete());
+        enterButton = new JButton(locale.getString("info.enter"));
         enterButton.addActionListener(new Enter());
-        cancelButton = new JButton("Отмена");
+        cancelButton = new JButton(locale.getString("info.cancel"));
         cancelButton.addActionListener(new Cancel());
 
 
-        name_text = new JLabel("Имя" + ":");
-        coordinates_text = new JLabel("Координаты" + ":");
-        x_text = new JLabel("X" + ":");
-        y_text = new JLabel("Y" + ":");
-        creationDate_text = new JLabel("Время создания" + ":");
-        minimalPoint_text = new JLabel("Минимальная точка" + ":");
-        personalQualitiesMaximum_text = new JLabel("Максимум личностных качеств" + ":");
-        difficulty_text = new JLabel("Сложность" + ":");
-        discipline_text = new JLabel("Дисциплина" + ":");
-        disciplineName_text = new JLabel("Название дисциплины" + ":");
-        practiceHours_text = new JLabel("Часы практики" + ":");
-        user_text = new JLabel("Владелец" + ":");
+        name_text = new JLabel(locale.getString("info.name")); //locale.getString("")
+        coordinates_text = new JLabel(locale.getString("info.coordinates"));
+        x_text = new JLabel(locale.getString("info.x"));
+        y_text = new JLabel(locale.getString("info.y"));
+        creationDate_text = new JLabel(locale.getString("info.creationDate"));
+        minimalPoint_text = new JLabel(locale.getString("info.minimalPoint"));
+        personalQualitiesMaximum_text = new JLabel(locale.getString("info.personalQualitiesMaximum"));
+        difficulty_text = new JLabel(locale.getString("info.difficulty"));
+        discipline_text = new JLabel(locale.getString("info.discipline"));
+        disciplineName_text = new JLabel(locale.getString("info.disciplineName"));
+        practiceHours_text = new JLabel(locale.getString("info.practiceHours"));
+        user_text = new JLabel(locale.getString("info.user"));
         texts = new ArrayList<>(Arrays.asList(name_text, coordinates_text, x_text, y_text, creationDate_text,
                 minimalPoint_text, personalQualitiesMaximum_text, difficulty_text, discipline_text,
                 disciplineName_text, practiceHours_text, user_text));
 
 
-        name_value = new JLabel("Заглушка");
-        coordinates_value = new JLabel("Заглушка");
-        x_value = new JLabel("Заглушка");
-        y_value = new JLabel("Заглушка");
-        creationDate_value = new JLabel("Заглушка");
-        minimalPoint_value = new JLabel("Заглушка");
-        personalQualitiesMaximum_value = new JLabel("Заглушка");
-        difficulty_value = new JLabel("Заглушка");
-        discipline_value = new JLabel("Заглушка");
-        disciplineName_value = new JLabel("Заглушка");
-        practiceHours_value = new JLabel("Заглушка");
-        user_value = new JLabel("Заглушка");
-        values = new ArrayList<>(Arrays.asList(name_value, x_value, y_value, creationDate_value,
+        name_value = new JLabel("");
+        coordinates_value = new JLabel("");
+        x_value = new JLabel("");
+        y_value = new JLabel("");
+        creationDate_value = new JLabel("");
+        minimalPoint_value = new JLabel("");
+        personalQualitiesMaximum_value = new JLabel("");
+        difficulty_value = new JLabel("");
+        discipline_value = new JLabel("");
+        disciplineName_value = new JLabel("");
+        practiceHours_value = new JLabel("");
+        user_value = new JLabel("");
+        values = new ArrayList<>(Arrays.asList(name_value, x_value, y_value,
                 minimalPoint_value, personalQualitiesMaximum_value, difficulty_value,
                 disciplineName_value, practiceHours_value));
 
-        name_field = new JTextField("Заглушка");
-        coordinates_field = new JTextField("Заглушка");
-        x_field = new JTextField("Заглушка");
-        y_field = new JTextField("Заглушка");
-        creationDate_field = new JTextField("Заглушка");
-        minimalPoint_field = new JTextField("Заглушка");
-        personalQualitiesMaximum_field = new JTextField("Заглушка");
+        name_field = new JTextField("");
+        coordinates_field = new JTextField("");
+        x_field = new JTextField("");
+        y_field = new JTextField("");
+        creationDate_field = new JTextField("");
+        minimalPoint_field = new JTextField("");
+        personalQualitiesMaximum_field = new JTextField("");
 
         String[] elements = new String[] {"", "EASY", "IMPOSSIBLE",
                 "INSANE", "TERRIBLE"};
         DefaultComboBoxModel difModel = new DefaultComboBoxModel<String>(elements);
         difficulty_field = new JComboBox<String>(difModel);
-        //difficulty_field = new JTextField("Заглушка");
+        //difficulty_field = new JTextField("");
 
 
-        discipline_field = new JTextField("Заглушка");
-        disciplineName_field = new JTextField("Заглушка");
-        practiceHours_field = new JTextField("Заглушка");
+        discipline_field = new JTextField("");
+        disciplineName_field = new JTextField("");
+        practiceHours_field = new JTextField("");
         fields = new ArrayList<>(Arrays.asList(name_field, x_field, y_field,
                 minimalPoint_field, personalQualitiesMaximum_field,
                 disciplineName_field, practiceHours_field));
@@ -343,6 +347,36 @@ public class InfoPlane extends UserPanel{
                 SpringLayout.EAST, user_text);
     }
 
+    @Override
+    public void updateLocale() {
+        locale = Application.rb;
+        createButton.setText(locale.getString("info.create"));
+        createButton.addActionListener(new CreateNew());
+        changeButton.setText(locale.getString("info.change"));
+        changeButton.addActionListener(new Change());
+        deleteButton.setText(locale.getString("info.delete"));
+        deleteButton.addActionListener(new Delete());
+        enterButton.setText(locale.getString("info.enter"));
+        enterButton.addActionListener(new Enter());
+        cancelButton.setText(locale.getString("info.cancel"));
+        cancelButton.addActionListener(new Cancel());
+
+
+        name_text.setText(locale.getString("info.name")); //locale.getString("")
+        coordinates_text.setText(locale.getString("info.coordinates"));
+        x_text.setText(locale.getString("info.x"));
+        y_text.setText(locale.getString("info.y"));
+        creationDate_text.setText(locale.getString("info.creationDate"));
+        minimalPoint_text.setText(locale.getString("info.minimalPoint"));
+        personalQualitiesMaximum_text.setText(locale.getString("info.personalQualitiesMaximum"));
+        difficulty_text.setText(locale.getString("info.difficulty"));
+        discipline_text.setText(locale.getString("info.discipline"));
+        disciplineName_text.setText(locale.getString("info.disciplineName"));
+        practiceHours_text.setText(locale.getString("info.practiceHours"));
+        user_text.setText(locale.getString("info.user"));
+        update();
+    }
+
     public void viewConstantElements() {
         add(createButton);
         add(changeButton);
@@ -375,6 +409,9 @@ public class InfoPlane extends UserPanel{
         difficulty_field.setPreferredSize(new Dimension(100, 20));
         add(enterButton);
         add(cancelButton);
+        for (JTextField field: fields){
+            field.setPreferredSize(new Dimension(100, 20));
+        }
         update();
     }
 
@@ -388,6 +425,9 @@ public class InfoPlane extends UserPanel{
         for (JLabel value: values){
             add(value);
         }
+        if (labwork != null) {
+            viewSelectedLabWork();
+        }
         update();
     }
 
@@ -397,11 +437,82 @@ public class InfoPlane extends UserPanel{
 
     public void setLabwork(HashMap<String, Object> labwork) {
         this.labwork = labwork;
+        if (labwork == null) {
+            viewClearLabWork();
+        } else {
+            viewSelectedLabWork();
+        }
+    }
+
+    public void viewSelectedLabWork(){
+        name_value.setText((String) labwork.get("name"));
+        x_value.setText(((Long) labwork.get("x")).toString());
+        y_value.setText(((Long) labwork.get("y")).toString());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(locale.getString("info.formatter"));
+        if (!changeing & !created){
+            creationDate_value.setText( ((LocalDateTime) labwork.get("creationDate")).format(formatter) );
+        }
+        minimalPoint_value.setText(String.valueOf((int) labwork.get("minimalPoint")));
+        personalQualitiesMaximum_value.setText(((Long) labwork.get("personalQualitiesMaximum")).toString());
+        if (labwork.get("difficulty") != null) {
+            difficulty_value.setText((labwork.get("difficulty")).toString());
+        } else {
+            difficulty_value.setText("");
+        }
+        if (labwork.get("disciplineName") != null) {
+            disciplineName_value.setText((String) labwork.get("disciplineName"));
+            practiceHours_value.setText(labwork.get("practiceHours").toString());
+        } else {
+            disciplineName_value.setText("");
+            practiceHours_value.setText("");
+        }
+        if (!changeing & !created) {
+            user_value.setText((String) labwork.get("userName"));
+        }
+
+        name_field.setText((String) labwork.get("name"));
+        x_field.setText(((Long) labwork.get("x")).toString());
+        y_field.setText(((Long) labwork.get("y")).toString());
+
+        minimalPoint_field.setText(String.valueOf((int) labwork.get("minimalPoint")));
+        personalQualitiesMaximum_field.setText(((Long) labwork.get("personalQualitiesMaximum")).toString());
+        if (labwork.get("difficulty") != null) {
+            difficulty_field.setSelectedItem((labwork.get("difficulty")).toString());
+        } else {
+            difficulty_field.setSelectedItem("");
+        }
+        if (labwork.get("disciplineName") != null) {
+            disciplineName_field.setText((String) labwork.get("disciplineName"));
+            practiceHours_field.setText(labwork.get("practiceHours").toString());
+        } else {
+            disciplineName_field.setText("");
+            practiceHours_field.setText("");
+        }
+        update();
+    }
+
+    public void viewClearLabWork(){
+        for (JLabel value: values) {
+            value.setText("");
+        }
+        for (JTextField field: fields) {
+            field.setText("");
+        }
+        difficulty_field.setSelectedItem("");
+        for (JTextField field: fields){
+            field.setPreferredSize(new Dimension(100, 20));
+        }
+        update();
     }
 
     public class Change implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            if (labwork!=null){
+            if (labwork==null){
+                CommandPanel.addEntry(locale.getString("info.notSelected"));
+            } else if (!((String)labwork.get("userName")).equals(ClientMessageGeneration.login)){
+                CommandPanel.addEntry(locale.getString("info.notYou"));
+            } else{
                 if (created) {
                     viewValueElements();
                     created = false;
@@ -411,13 +522,15 @@ public class InfoPlane extends UserPanel{
                     viewValueElements();
                 } else {
                     changeing = true;
+                    viewSelectedLabWork();
                     user_value.setText((String) labwork.get("userName"));
-                    creationDate_value.setText((String) labwork.get("creationDate"));
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(locale.getString("info.formatter"));
+
+                    creationDate_value.setText(((LocalDateTime)labwork.get("creationDate")).format(formatter));
                     viewFieldElements();
                 }
+
                 update();
-            } else {
-                CommandPanel.addEntry("Работа не выбрана");
             }
         }
     }
@@ -433,8 +546,9 @@ public class InfoPlane extends UserPanel{
                     viewValueElements();
                 } else {
                     created = true;
+                    viewClearLabWork();
                     user_value.setText(ClientMessageGeneration.login);
-                    creationDate_value.setText("Скоро будет");
+                    creationDate_value.setText("");
                     viewFieldElements();
                 }
                 for (JTextField field: fields){
@@ -489,15 +603,24 @@ public class InfoPlane extends UserPanel{
                     Application.commandReader.setLabwork(newLaba);
                     if (changeing) {
                         Application.commandReader.writeCommand("update");
+                        changeing = false;
+                        setLabwork(newLaba.getMap());
+                        Thread.sleep(100);
+                        Application.commandReader.setLabwork(null);
+                        //viewValueElements();
                     } else if (created) {
                         Application.commandReader.writeCommand("add");
+                        created = false;
+                        Thread.sleep(100);
+                        Application.commandReader.setLabwork(null);
+                        //viewValueElements();
                     } else {
                         CommandPanel.addEntry("Шо происходит?"); //не переводить
                     }
                 } else {
-                    CommandPanel.addEntry("Сохдание успешно завершено");
+                    CommandPanel.addEntry(locale.getString("info.creationComlited"));
                 }
-
+                viewValueElements();
             } catch (BadValueException badValueException) {
                 badValueException.setType("input");
                 badValueException.message();
@@ -506,6 +629,27 @@ public class InfoPlane extends UserPanel{
             } catch (InterruptedException interruptedException) {
                 interruptedException.printStackTrace();
             }
+        }
+    }
+
+    public class Delete implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+
+            try {
+                if (labwork == null) {
+                    CommandPanel.addEntry(locale.getString("info.notSelected"));
+                } else if (!((String)labwork.get("userName")).equals(ClientMessageGeneration.login)){
+                    CommandPanel.addEntry(locale.getString("info.notYou"));
+                } else {
+                    Application.commandReader.writeCommand("remove_by_id " + (Long) labwork.get("id"));
+                }
+
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+
         }
     }
 }

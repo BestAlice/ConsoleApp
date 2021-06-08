@@ -115,7 +115,7 @@ public class Main {
                         command = scan.nextLine();
                         commandReader.Authorization(command);
                     }
-                    Thread.sleep(100);
+                    Thread.sleep(10);
                 } catch (IOException | InterruptedException e) {
                     //reconnection();
                     break;
@@ -132,8 +132,7 @@ public class Main {
             while (commandReader.isReading()){
                 try {
                     commandReader.readAnswer();
-                } catch (IOException e) {
-                    //reconnection();
+                } catch (IOException | InterruptedException e) {
                     break;
                 }
             }
