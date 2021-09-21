@@ -72,12 +72,10 @@ public class Main {
                         MessageObject test = new MessageObject();
                         test.setCommand("test");
                         while (commandReader.isReading()){
-                            commandReader.messager.sendMessage(test);
-                            Thread.sleep(5000);
+                            //commandReader.messager.sendMessage(test);
+                            //Thread.sleep(5000);
                         }
 
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     } finally {
                         socket.close();
                         executorPool.shutdown();
@@ -149,21 +147,6 @@ public class Main {
             if (connection.reconnect()) {
                 socket = connection.getSocket();
                 break;
-            } else {
-                System.out.println("Желаете ли попробовать подключиться снова? (yes, no)");
-                while (true) {
-                    String command = scan.nextLine();
-                    if (command.equals("yes")){
-                        break;
-                    } else if (command.equals("no")){
-                        needConnect = false;
-                        needReconnect = false;
-                        break;
-                    } else {
-                        System.out.println("Некорректный ввод...");
-                    }
-
-                }
             }
         }
     }

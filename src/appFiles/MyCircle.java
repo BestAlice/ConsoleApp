@@ -27,9 +27,9 @@ public class MyCircle extends Ellipse2D.Double {
     public MyCircle (HashMap<String, Object> labwork) {
         this.abs_x = (int) (long)labwork.get("x");
         this.abs_y = (int)(long)labwork.get("y");
-        this.rad = (int)(((int)labwork.get("weight")-500)*0.05);
+        this.rad = (int)(((int)labwork.get("weight")-600)*0.2);
         this.labwork = labwork;
-        Long userId = (Long)(((Long)labwork.get("userId")*2650+1564)%(255*255*255));
+        Long userId = (Long)((((Long)labwork.get("userId")+432)*(Long)labwork.get("userId")))%(255*255*255);
 
         String rgb = String.format("%6s", Integer.toHexString((int)(long)userId)).replace(' ', '0');
         color = Color.decode("#" + rgb);
@@ -81,6 +81,7 @@ public class MyCircle extends Ellipse2D.Double {
                 g2.setColor(circle.getColor());
                 circle.setX((int)(x*elapsed/1000));
                 circle.setY((int)(y*elapsed/1000));
+
                 finish = System.currentTimeMillis();
                 elapsed = finish - start;
 

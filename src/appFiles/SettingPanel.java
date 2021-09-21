@@ -81,15 +81,17 @@ public class SettingPanel extends UserPanel{
                 SpringLayout.WEST, this);
         layout.putConstraint(SpringLayout.NORTH, row, 0,
                 SpringLayout.NORTH, this);
-        layout.putConstraint(SpringLayout.WEST, field, 3*DISTANCE,
+        layout.putConstraint(SpringLayout.WEST, field, (int)(2.5*DISTANCE),
                 SpringLayout.WEST, row);
         layout.putConstraint(SpringLayout.NORTH, field, 0,
                 SpringLayout.NORTH, this);
         layout.putConstraint(SpringLayout.SOUTH, field, 0,
                 SpringLayout.SOUTH, row);
         field.setPreferredSize(new Dimension(150, 20));
-        layout.putConstraint(SpringLayout.WEST, ok, DISTANCE,
+        layout.putConstraint(SpringLayout.WEST, ok, DISTANCE/3,
                 SpringLayout.EAST, field);
+        layout.putConstraint(SpringLayout.SOUTH, user_label, 0,
+                SpringLayout.SOUTH, ok);
 
         /*layout.putConstraint(SpringLayout.EAST, ok, -DISTANCE,
                 SpringLayout.EAST, user_label);

@@ -82,7 +82,7 @@ public class GrafPainter extends JPanel {
             while (elapsed <= 2000) {
                 Application.visual_panel.update();
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(3);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

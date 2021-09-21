@@ -257,7 +257,12 @@ public class CommandInterpreter {
                     .findFirst().get();
                 BD.deteteLabWork(lab.getId());
                 remove(lab);
-                sort();
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            sort();
                 answer.addMessage("Удаление завершено");
                 UpdatedAll();
 

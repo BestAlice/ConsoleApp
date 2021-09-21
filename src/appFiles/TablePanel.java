@@ -121,15 +121,20 @@ public class TablePanel extends UserPanel{
               return (int)(o1-o2);
             }
         });
+        /*
         int columnIndexToSort5 = table.getColumnModel().getColumnIndex("Practice Hours");
         sorter.setComparator(columnIndexToSort5, new Comparator<Integer>()
         {
             @Override
             public int compare(Integer o1, Integer o2)
-            {
+            {   if (o1 == null & o2 == null) {return 0;}
+                if (o1 == null) {return  o2;}
+                if (o2 == null) {return  o1;}
                 return (int)(o1-o2);
             }
         });
+
+         */
         int columnIndexToSort6 = table.getColumnModel().getColumnIndex("Id");
         sorter.setComparator(columnIndexToSort6, new Comparator<Long>()
         {
@@ -282,7 +287,6 @@ public class TablePanel extends UserPanel{
                 Long id = (Long)map.get("id");
                 if (this_id.equals(id)){
                     haveId =true;
-                    break;
                 }
             }
         }

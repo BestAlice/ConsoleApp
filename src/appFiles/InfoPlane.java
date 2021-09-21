@@ -605,13 +605,11 @@ public class InfoPlane extends UserPanel{
                         Application.commandReader.writeCommand("update");
                         changeing = false;
                         setLabwork(newLaba.getMap());
-                        Thread.sleep(100);
                         Application.commandReader.setLabwork(null);
                         //viewValueElements();
                     } else if (created) {
                         Application.commandReader.writeCommand("add");
                         created = false;
-                        Thread.sleep(100);
                         Application.commandReader.setLabwork(null);
                         //viewValueElements();
                     } else {
